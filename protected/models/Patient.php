@@ -40,15 +40,19 @@
  * @property int $created_user_id
  * @property int $last_modified_user_id
  * @property datetime $no_allergies_date
- * @property tinyint $deleted
+ * @property int $deleted
  * @property int $ethnic_group_id
+ * @property int $patient_source
  *
  * The followings are the available model relations:
  * @property Episode[] $episodes
  * @property Address[] $addresses
  * @property Address $address Primary address
  * @property Contact[] $contactAssignments
+ * @property Contact $contact
  * @property Gp $gp
+ * @property PatientReferral $referral
+ * @property Medication[] $medications
  * @property Practice $practice
  * @property Allergy[] $allergies
  * @property EthnicGroup $ethnic_group
@@ -59,6 +63,10 @@
 class Patient extends BaseActiveRecordVersioned
 {
     const CHILD_AGE_LIMIT = 16;
+
+    const PATIENT_SOURCE_OTHER = 0;
+    const PATIENT_SOURCE_REFERRAL = 1;
+    const PATIENT_SOURCE_SELF_REGISTER = 2;
 
     public $use_pas = true;
     private $_orderedepisodes;
@@ -111,14 +119,16 @@ class Patient extends BaseActiveRecordVersioned
     {
         return array(
             array('pas_key', 'length', 'max' => 10),
+            array('dob, patient_source', 'required'),
             array('hos_num', 'required', 'on' => 'pas'),
             array('hos_num, nhs_num', 'length', 'max' => 40),
             array('hos_num', 'unique', 'message'=>'A patient already exists with this hospital number'),
             array('gender,is_local', 'length', 'max' => 1),
-            array('dob, is_deceased, date_of_death, ethnic_group_id, gp_id, practice_id, is_local,nhs_num_status_id', 'safe'),
-            array('gender, dob', 'required', 'on' => 'manual'),
+            array('dob, is_deceased, date_of_death, ethnic_group_id, gp_id, practice_id, is_local,nhs_num_status_id, patient_source', 'safe'),
+            array('gender', 'required', 'on' => 'self_register'),
+            array('gp_id', 'required', 'on' => 'referral'),
             array('deleted', 'safe'),
-            array('dob, hos_num, nhs_num, date_of_death, deleted,is_local', 'safe', 'on' => 'search'),
+            array('dob, hos_num, nhs_num, date_of_death, deleted,is_local, patient_source', 'safe', 'on' => 'search'),
         );
     }
 
@@ -146,6 +156,7 @@ class Patient extends BaseActiveRecordVersioned
                 'alias' => 'patient_allergies',
                 'order' => 'patient_allergies.name', ),
             'allergyAssignments' => array(self::HAS_MANY, 'PatientAllergyAssignment', 'patient_id'),
+            'referral' => array(self::HAS_ONE, 'PatientReferral', 'patient_id'),
             'risks' => array(
                 self::MANY_MANY,
                 'Risk',
@@ -161,12 +172,12 @@ class Patient extends BaseActiveRecordVersioned
             //'medications' => array(self::HAS_MANY, 'Medication', 'patient_id', 'order' => 'created_date', 'condition' => 'end_date is null'),
             //'previous_medications' => array(self::HAS_MANY, 'Medication', 'patient_id', 'order' => 'created_date', 'condition' => 'end_date is not null'),
             'commissioningbodies' => array(self::MANY_MANY, 'CommissioningBody', 'commissioning_body_patient_assignment(patient_id, commissioning_body_id)'),
-            'referrals' => array(self::HAS_MANY, 'Referral', 'patient_id'),
             'lastReferral' => array(self::HAS_ONE, 'Referral', 'patient_id', 'order' => 'received_date desc'),
             'socialhistory' => array(self::HAS_ONE, 'SocialHistory', 'patient_id'),
             'adherence' => array(self::HAS_ONE, 'MedicationAdherence', 'patient_id'),
             'nhsNumberStatus' => array(self::BELONGS_TO, 'NhsNumberVerificationStatus', 'nhs_num_status_id'),
             'geneticsPatient' => array(self::HAS_ONE, 'GeneticsPatient', 'patient_id'),
+            'trials' => array(self::HAS_MANY, 'TrialPatient', 'patient_id'),
         );
     }
 
@@ -182,14 +193,44 @@ class Patient extends BaseActiveRecordVersioned
             'date_of_death' => 'Date of Death',
             'gender' => 'Gender',
             'ethnic_group_id' => 'Ethnic Group',
-            'hos_num' => 'Hospital Number',
-            'nhs_num' => 'NHS Number',
+            'hos_num' => 'CERA Number',
+            'nhs_num' => 'Medicare Number',
             'deleted' => 'Is Deleted',
-            'nhs_num_status_id' => 'NHS Number Status',
+            'nhs_num_status_id' => 'Medicare Number Status',
             'gp_id' => 'General Practitioner',
             'practice_id' => 'Practice',
-            'is_local' => 'Is local patient ?'
+            'is_local' => 'Is local patient ?',
+            'patient_source' => 'Patient Source'
         );
+    }
+
+    /**
+     * @return array List of sources for display in a drop-down list.
+     */
+    public function getSourcesList()
+    {
+        return array(
+            self::PATIENT_SOURCE_REFERRAL => 'Referral',
+            self::PATIENT_SOURCE_SELF_REGISTER => 'Self-Registration',
+            self::PATIENT_SOURCE_OTHER => 'Other'
+        );
+    }
+
+    /**
+     * @return string Human-readable patient source for read-only display.
+     */
+    public function getPatientSource()
+    {
+        switch ($this->patient_source)
+        {
+            case self::PATIENT_SOURCE_REFERRAL:
+                return 'Referral';
+            case self::PATIENT_SOURCE_SELF_REGISTER:
+                return 'Self-Registration';
+            case self::PATIENT_SOURCE_OTHER:
+                return 'Other';
+        }
+        return 'None';
     }
 
     public function search_nr($params)
@@ -1363,6 +1404,38 @@ class Patient extends BaseActiveRecordVersioned
         Yii::app()->event->dispatch('patient_remove_diagnosis', array('patient'=>$patient, 'diagnosis' => $sd));
 
         $this->audit('patient', "remove-$type-diagnosis");
+    }
+
+    /**
+     * @param integer $diagnosis_id
+     * @throws Exception
+     */
+    public function confirmDiagnosis($diagnosis_id)
+    {
+        if (!$sd = SecondaryDiagnosis::model()->findByPk($diagnosis_id)) {
+            throw new Exception('Unable to find secondary_diagnosis: '.$diagnosis_id);
+        }
+
+        if (!$disorder = Disorder::model()->findByPk($sd->disorder_id)) {
+            throw new Exception('Unable to find disorder: '.$sd->disorder_id);
+        }
+
+        $patient = $sd->patient;
+
+        if ($disorder->specialty_id) {
+            $type = strtolower(Specialty::model()->findByPk($disorder->specialty_id)->code);
+        } else {
+            $type = 'sys';
+        }
+
+        $sd->is_confirmed = 1;
+        if (!$sd->save()) {
+            throw new Exception('Unable to confirm diagnosis: '.print_r($sd->getErrors(), true));
+        }
+
+        Yii::app()->event->dispatch('patient_confirm_diagnosis', array('patient'=>$patient, 'diagnosis' => $sd));
+
+        $this->audit('patient', "confirm-$type-diagnosis");
     }
 
     /**

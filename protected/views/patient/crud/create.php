@@ -13,6 +13,8 @@
             'patient' => $patient,
             'contact' => $contact,
             'address' => $address,
+            'referral' => $referral,
+            'context' => 'create'
         )); ?>
     </div>
   </div>

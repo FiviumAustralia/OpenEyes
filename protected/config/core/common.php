@@ -54,9 +54,24 @@ return array(
         'gii' => array(
             'class' => 'system.gii.GiiModule',
             'password' => 'openeyes',
-            'ipFilters' => array('127.0.0.1'),
+            'ipFilters' => array('127.0.0.1')
         ),
         'oldadmin',
+        'OETrial',
+        'OECaseSearch' => array(
+            'parameters' => array(
+                'PatientAge',
+                'PatientDiagnosis',
+                'PatientMedication',
+                'PreviousTrial',
+                'PatientAllergy',
+                'FamilyHistory'
+            ),
+            'providers' => array(
+                'mysql' => 'DBProvider'
+            )
+        ),
+        'Genetics'
     ),
 
     // Application components
@@ -295,6 +310,11 @@ return array(
                 'uri' => '',
                 'position' => 1,
             ),
+            'casesearch' => array(
+                'title' => 'Case Search',
+                'uri' => 'OECaseSearch/caseSearch',
+                'position' => 4,
+            ),
             'admin' => array(
                 'title' => 'More',
                 'uri' => '#',
@@ -351,7 +371,6 @@ return array(
                         'position' => 9,
                         'restricted' => array('TaskAddPatient'),
                     ),
-
                 ),
             ),
 // temporarily disabled

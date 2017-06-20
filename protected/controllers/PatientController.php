@@ -1496,6 +1496,7 @@ class PatientController extends BaseController
         $contact = new Contact();
         $address = new Address();
         $referral = null;
+        $gpcontact = null;
         
         $this->performAjaxValidation(array($patient, $contact, $address));
         
@@ -1545,7 +1546,8 @@ class PatientController extends BaseController
                         'patient' => $patient,
                         'contact' => $contact,
                         'address' => $address,
-                        'referral' => isset($referral) ? $referral : new PatientReferral('other_register')
+                        'referral' => isset($referral) ? $referral : new PatientReferral('other_register'),
+                        'gpcontact' => $gpcontact
         ));
    }
    

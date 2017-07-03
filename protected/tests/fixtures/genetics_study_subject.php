@@ -16,21 +16,17 @@
  * @copyright Copyright (c) 2011-2013, OpenEyes Foundation
  * @license http://www.gnu.org/licenses/gpl-3.0.html The GNU General Public License V3.0
  */
-?>
-<div class="reply-address">
-    <?php if($is_internal_referral): ?>
-        <br>
-        <div class="text-center internal-referral-heading">Internal Referral Letter</div>
-    <?php endif; ?>
-    <br>
-	<?php if ($site->replyTo) {?>
-		<strong>Please reply to:</strong>
-		<br/>
-		<?php
-        echo $site->getLetterAddress(array(
-            'contact' => 'replyTo',
-            'include_name' => true,
-            'delimiter' => ', ',
-        ))?>
-	<?php }?>
-</div>
+
+return array(
+    'genetics_study_subject1' => array(
+        'id' => 1,
+        'study_id' => 1,
+        'subject_id' => 1
+    ),
+
+    'genetics_study_subject2' => array(
+        'id' => 2,
+        'study_id' => 2,
+        'subject_id' => 2
+    ),
+);

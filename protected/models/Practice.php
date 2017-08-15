@@ -81,8 +81,6 @@ class Practice extends BaseActiveRecordVersioned
     public function rules()
     {
         return array(
-            array('code', 'required'),
-            array('code','required','on' => 'manage_practice'),
             array('phone, contact_id', 'safe'),
             array('id, code', 'safe', 'on' => 'search'),
         );

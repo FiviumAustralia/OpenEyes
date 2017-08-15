@@ -512,6 +512,7 @@ $ethnic_groups = CHtml::listData(EthnicGroup::model()->findAll(), 'id', 'name');
     ));
 
     echo CHtml::beginForm(Yii::app()->controller->createUrl('practice/create'),'post',array('id'=>'practice_form'));
+    $practicecontact->scenario = 'manage_practice';
     echo CHtml::activeLabelEx($practicecontact, 'title');
     echo CHtml::activeTextField($practicecontact, 'title', array('size' => 30, 'maxlength' => 30));
     echo CHtml::activeLabelEx($practicecontact, 'first_name');

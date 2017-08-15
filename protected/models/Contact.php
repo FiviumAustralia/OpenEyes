@@ -71,7 +71,7 @@ class Contact extends BaseActiveRecordVersioned
             array('nick_name', 'length', 'max' => 80),
             array('title, first_name, last_name, nick_name, primary_phone, qualifications, maiden_name, contact_label_id', 'safe'),
             array('first_name, last_name', 'required', 'on' => array('manualAddPatient','referral','self_register','other_register','manage_gp')),
-            array('title', 'required', 'on' => 'self_register'),
+            array('title', 'required', 'on' => array('self_register', 'manage_practice')),
             array('id, nick_name, primary_phone, title, first_name, last_name, qualifications', 'safe', 'on' => 'search'),
         );
     }

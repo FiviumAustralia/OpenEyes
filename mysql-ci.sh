@@ -9,5 +9,6 @@ GRANT ALL PRIVILEGES ON *.* TO '$DATABASE_TEST_USER'@'$DATABASE_TEST_HOST';
 FLUSH PRIVILEGES;"
 echo "Done."
 echo "Importing sample data..."
+mysql $DATABASE_NAME -u $DATABASE_USER -p$DATABASE_PASS < protected/modules/sample/sql/openeyes_sample_data.sql
 mysql $DATABASE_TEST_NAME -u $DATABASE_TEST_USER -p$DATABASE_TEST_PASS < protected/modules/sample/sql/openeyes_sample_data.sql
 echo "Done."

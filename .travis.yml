@@ -30,6 +30,6 @@ script:
   - php yiic generatesessions --interactive=0 --connectionID=testdb
 
   # Run unit tests.
-  - cd protected/tests
-  - phpunit ../modules/OECaseSearch/tests/unit
-  - phpunit ../modules/OETrial/tests/unit
+  - cd tests
+  - php ../../vendor/phpunit/phpunit/phpunit.php ../modules/OECaseSearch/tests/unit
+  - php ../../vendor/phpunit/phpunit/phpunit.php ../modules/OETrial/tests/unit

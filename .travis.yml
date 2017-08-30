@@ -6,7 +6,6 @@ php:
 install:
   - composer install
   - npm install
-  - bower install
 before_script:
   - mysql -u root
   - CREATE USER $DATABASE_TEST_USER@$DATABASE_TEST_HOST IDENTIFIED BY password($DATABASE_TEST_PASS);

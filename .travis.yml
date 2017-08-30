@@ -6,6 +6,15 @@ php:
 install:
   - composer install
   - npm install
+  - bower install
+before_script:
+  - mysql -u root
+  - CREATE USER $DATABASE_TEST_USER@$DATABASE_TEST_HOST IDENTIFIED BY password($DATABASE_TEST_PASS);
+  - GRANT ALL PRIVILEGES ON *.* TO $DATABASE_TEST_USER@$DATABASE_TEST_HOST;
+  - FLUSH PRIVILEGES;
+  - exit
+  - mysql -u $DATABASE_TEST_USER -p$DATABASE_TEST_PASS < protected/modules/sample/sql/openeyes_sample_data.sql
+script:
   - mkdir assets
   - mkdir cache
   - cd protected
@@ -19,7 +28,6 @@ install:
   - php yiic migratemodules --interactive=0 --connectionID=testdb
   - php yiic generateuniquecode --interactive=0 --connectionID=testdb
   - php yiic generatesessions --interactive=0 --connectionID=testdb
-script:
   - cd protected/tests
   - phpunit ../modules/OECaseSearch/tests/unit
   - phpunit ../modules/OETrial/tests/unit

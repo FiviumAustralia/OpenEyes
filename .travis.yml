@@ -6,9 +6,15 @@ php:
 install:
   - composer install
   - npm install
+  - mkdir assets
+  - mkdir cache
   - cd protected
+  - mkdir cache
+  - mkdir cache/events
+  - mkdir runtime
   - cp config/local.sample/common.php config/local/common.php
   - cp config/local.sample/console.vagrant.php config/local/console.php
+  - cp config/local.sample/test.php config/local/test.php
   - php yiic migrate --interactive=0 --connectionID=testdb
   - php yiic migratemodules --interactive=0 --connectionID=testdb
   - php yiic generateuniquecode --interactive=0 --connectionID=testdb

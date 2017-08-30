@@ -6,8 +6,7 @@ php:
 install:
   - composer install
   - npm install
-  - ls
-  - cd openeyes/protected
+  - cd protected
   - cp config/local.sample/common.php config/local/common.php
   - cp config/local.sample/console.vagrant.php config/local/console.php
   - php yiic migrate --interactive=0 --connectionID=testdb
@@ -15,6 +14,6 @@ install:
   - php yiic generateuniquecode --interactive=0 --connectionID=testdb
   - php yiic generatesessions --interactive=0 --connectionID=testdb
 script:
-  - cd openeyes/protected/tests
+  - cd protected/tests
   - phpunit ../modules/OECaseSearch/tests/unit
   - phpunit ../modules/OETrial/tests/unit

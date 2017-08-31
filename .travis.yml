@@ -26,6 +26,10 @@ script:
   - cp config/local.sample/test.php config/local/test.php
 
   # Run migrations
+  - php yiic migrate --interactive=0
+  - php yiic migratemodules --interactive=0
+  - php yiic generateuniquecode --interactive=0
+  - php yiic generatesessions --interactive=0
   - php yiic migrate --interactive=0 --connectionID=testdb
   - php yiic migratemodules --interactive=0 --connectionID=testdb
   - php yiic generateuniquecode --interactive=0 --connectionID=testdb

@@ -4,8 +4,11 @@ dist: trusty
 php:
   - '5.6'
 install:
+  # Get vendor dependencies (Both PHP and JS)
   - composer install
   - npm install
+
+  # Git Clone OE Dependencies. Sample module contains the MySQL data dump necessary for the unit tests to run.
   - git clone https://github.com/openeyes/eyedraw.git protected/modules/eyedraw
   - git clone https://github.com/openeyes/sample.git protected/modules/sample
 before_script:
@@ -26,10 +29,6 @@ script:
   - cp config/local.sample/test.php config/local/test.php
 
   # Run migrations
-  - php yiic migrate --interactive=0
-  - php yiic migratemodules --interactive=0
-  - php yiic generateuniquecode --interactive=0
-  - php yiic generatesessions --interactive=0
   - php yiic migrate --interactive=0 --connectionID=testdb
   - php yiic migratemodules --interactive=0 --connectionID=testdb
   - php yiic generateuniquecode --interactive=0 --connectionID=testdb

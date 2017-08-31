@@ -12,7 +12,8 @@ install:
   - git clone https://github.com/openeyes/eyedraw.git protected/modules/eyedraw
   - git clone https://github.com/openeyes/sample.git protected/modules/sample
 before_script:
-  - sudo chmod a+x mysql-ci.sh
+  - echo 'date.timezone = "Europe/London"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini # Set the PHP timezone to UTC +0:00:00
+  - sudo chmod a+x mysql-ci.sh # Make the shell script to populate the databases executable.
   - ./mysql-ci.sh # Configure the test database
 script:
   # Create the runtime folders.

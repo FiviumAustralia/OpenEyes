@@ -3,7 +3,7 @@
 /* @var $model EthnicGroup */
 $this->pageTitle = 'Create Ethnic';
 ?>
-<h1 class="badge">Disorder</h1>
+<h1 class="badge">Create Ethnic</h1>
 <div class="box content admin-content">
   <div class="large-10 column content admin large-centered">
     <div class="box admin">
@@ -22,7 +22,4 @@ $this->pageTitle = 'Create Ethnic';
 <!--//	array('label'=>'Manage EthnicGroup', 'url'=>array('admin')),-->
 <!--//);-->
 <!--//?>-->
-<!---->
 <!--<h1>Create EthnicGroup</h1>-->
-<!---->
-<?php //$this->renderPartial('_form', array('model'=>$model)); ?>

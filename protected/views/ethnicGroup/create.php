@@ -12,14 +12,3 @@ $this->pageTitle = 'Create Ethnic';
     </div>
   </div>
 </div>
-<!--//$this->breadcrumbs=array(-->
-<!--//	'Ethnic Groups'=>array('index'),-->
-<!--//	'Create',-->
-<!--//);-->
-<!--//-->
-<!--//$this->menu=array(-->
-<!--//	array('label'=>'List EthnicGroup', 'url'=>array('index')),-->
-<!--//	array('label'=>'Manage EthnicGroup', 'url'=>array('admin')),-->
-<!--//);-->
-<!--//?>-->
-<!--<h1>Create EthnicGroup</h1>-->

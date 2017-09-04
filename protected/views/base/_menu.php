@@ -2,9 +2,9 @@
     <?php foreach ($menu as $key => $item) { ?>
         <?php
         $selected = ($uri == $item['uri']) ? 'selected' : '';
-    $hasSub = isset($item['sub']) && is_array($item['sub']);
-    $subClass = $hasSub ? 'sub-menu-item' : '';
-    $menuKey = 'menu-item-'.str_replace(' ', '-', strtolower($item['title']));
+        $hasSub = isset($item['sub']) && is_array($item['sub']);
+        $subClass = $hasSub ? 'sub-menu-item' : '';
+        $menuKey = 'menu-item-'.str_replace(' ', '-', strtolower($item['title']));
     ?>
         <li
             class="<?= $selected ?>"

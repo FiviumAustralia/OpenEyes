@@ -29,10 +29,6 @@ class EthnicGroupController extends BaseController
 				'actions'=>array('create','update'),
 				'roles'=>array('TaskManageEthnic'),
 			),
-			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete'),
-				'users'=>array('admin'),
-			),
 			array('deny',  // deny all users
 				'users'=>array('*'),
 			),
@@ -95,20 +91,6 @@ class EthnicGroupController extends BaseController
 		$this->render('update',array(
 			'model'=>$model,
 		));
-	}
-
-	/**
-	 * Deletes a particular model.
-	 * If deletion is successful, the browser will be redirected to the 'admin' page.
-	 * @param integer $id the ID of the model to be deleted
-	 */
-	public function actionDelete($id)
-	{
-		$this->loadModel($id)->delete();
-
-		// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-		if(!isset($_GET['ajax']))
-			$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
 	}
 
 	/**

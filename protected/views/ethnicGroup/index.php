@@ -2,21 +2,13 @@
 /* @var $this EthnicGroupController */
 /* @var $dataProvider CActiveDataProvider */
 
-$this->pageTitle = 'Ethinic Groups';
+$this->pageTitle = 'Ethnic Groups';
 $dataProvided = $dataProvider->getData();
 $items_per_page = $dataProvider->getPagination()->getPageSize();
 $page_num = $dataProvider->getPagination()->getCurrentPage();
 $from = ($page_num*$items_per_page)+1;
 $to = min(($page_num+1)*$items_per_page, $dataProvider->totalItemCount);
-//$this->breadcrumbs=array(
-//	'Ethnic Groups',
-//);
-//
-$this->menu=array(
-	array('label'=>'Create EthnicGroup', 'url'=>array('create')),
-	array('label'=>'Manage EthnicGroup', 'url'=>array('admin')),
-);
-//?>
+?>
 
 <h1 class="badge">Ethnic Groups</h1>
 <div class="row data-row">
@@ -29,12 +21,20 @@ $this->menu=array(
             of <?php echo $dataProvider->totalItemCount ?>
           </h2>
         </div>
+        <div class="large-4 column">
+          <?php $form= $this->beginWidget('CActiveForm', array(
+              'id'=>'ethnic-search-form',
+          ));?>
+          <?php echo CHtml::textField('search-term', @$_POST['search-term'],
+              array('placeholder'=>'Enter search query...')); ?>
+          <?php $this->endWidget(); ?>
+        </div>
       </div>
-      <table id="disorder-grid" class="grid">
+      <table id="ethnic-grid" class="grid">
         <thead>
         <tr>
-          <th>Term</th>
-          <th>Specialty</th>
+          <th>Ethnic</th>
+          <th>Code</th>
         </tr>
         </thead>
         <tbody>
@@ -65,8 +65,6 @@ $this->menu=array(
         </tfoot>
       </table>
     </div>
-
-
   </div>
 
   <?php if (Yii::app()->user->checkAccess('index')): ?>
@@ -74,7 +72,7 @@ $this->menu=array(
         <div class="row">
           <div class="large-12 column end">
             <div class="box generic">
-              <p><?php echo CHtml::link('Create a new Ethnic', $this->createUrl('create'));?></p>
+              <p><?php echo CHtml::link('Create a new Ethnic', $this->createUrl('create')); ?></p>
             </div>
           </div>
         </div>
@@ -83,16 +81,12 @@ $this->menu=array(
 </div>
 
 <script type="text/javascript">
-  $('#disorder-grid tr.clickable').click(function () {
+  $('#ethnic-grid tr.clickable').click(function () {
+//      console.log('<?php //echo Yii::app()->controller->createUrl('view')?>//');
       window.location.href = '<?php echo Yii::app()->controller->createUrl('view')?>/'+$(this).attr('id').match(/[0-9]+/);
       return false;
     });
 </script>
-
-<?php //$this->widget('zii.widgets.CListView', array(
-//	'dataProvider'=>$dataProvider,
-//	'itemView'=>'_view',
-//)); ?>
 
 
 

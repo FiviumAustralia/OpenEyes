@@ -96,7 +96,7 @@ $ethnic_groups = CHtml::listData(EthnicGroup::model()->findAll(), 'id', 'name');
       <div class="row field-row">
         <div class="large-5 column"><?php echo $form->labelEx($contact, 'first_name'); ?></div>
         <div class="large-4 column end">
-          <?php echo $form->textField($contact, 'first_name', array('size' => 40, 'maxlength' => 40, 'id' => 'fname', 'onblur' => "findDuplicates($patient->id);")); ?>
+          <?php echo $form->textField($contact, 'first_name', array('size' => 40, 'maxlength' => 40, 'onblur' => "findDuplicates($patient->id);")); ?>
           <?php echo $form->error($contact, 'first_name'); ?>
         </div>
       </div>
@@ -104,7 +104,7 @@ $ethnic_groups = CHtml::listData(EthnicGroup::model()->findAll(), 'id', 'name');
       <div class="row field-row">
         <div class="large-5 column"><?php echo $form->labelEx($contact, 'last_name'); ?></div>
         <div class="large-4 column end">
-          <?php echo $form->textField($contact, 'last_name', array('size' => 40, 'maxlength' => 40, 'id' => 'surname', 'onblur' => "findDuplicates($patient->id);")); ?>
+          <?php echo $form->textField($contact, 'last_name', array('size' => 40, 'maxlength' => 40, 'onblur' => "findDuplicates($patient->id);")); ?>
           <?php echo $form->error($contact, 'last_name'); ?>
         </div>
       </div>
@@ -561,12 +561,15 @@ $ethnic_groups = CHtml::listData(EthnicGroup::model()->findAll(), 'id', 'name');
 
 <script type="text/javascript">
   function findDuplicates(id) {
-    if ($("#fname").val() && $('#surname').val() && $('#Patient_dob').val()) {
+    var first_name = $('#Contact_first_name').val();
+    var last_name = $('#Contact_last_name').val();
+    var date_of_birth = $('#Patient_dob').val();
+    if (first_name && last_name && date_of_birth) {
       $.ajax({
           url: "<?php echo Yii::app()->controller->createUrl('patient/findDuplicates'); ?>",
-          data: {firstName: $('#fname').val(), surname: $('#surname').val(), dob: $('#Patient_dob').val(), id: id},
+          data: {firstName: first_name, last_name: last_name, dob: date_of_birth, id: id},
           type: 'GET',
-          success: function(response) {
+          success: function (response) {
             $('#conflicts').remove();
             $('#contact').after(response);
           }

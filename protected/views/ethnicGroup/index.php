@@ -1,51 +1,47 @@
 <?php
-/* @var $this PracticeController */
+/* @var $this EthnicGroupController */
 /* @var $dataProvider CActiveDataProvider */
+
+$this->pageTitle = 'Ethnic Groups';
 $dataProvided = $dataProvider->getData();
-$this->pageTitle = 'Practices';
 $items_per_page = $dataProvider->getPagination()->getPageSize();
 $page_num = $dataProvider->getPagination()->getCurrentPage();
-$from = ($page_num * $items_per_page) + 1;
-$to = min(($page_num + 1) * $items_per_page, $dataProvider->totalItemCount);
+$from = ($page_num*$items_per_page)+1;
+$to = min(($page_num+1)*$items_per_page, $dataProvider->totalItemCount);
 ?>
 
-<h1 class="badge">Practices</h1>
-
+<h1 class="badge">Ethnicity</h1>
 <div class="row data-row">
   <div class="large-8 column">
     <div class="box generic">
       <div class="row">
         <div class="large-6 column">
           <h2>
-            Practices: viewing <?php echo $from ?> - <?php echo $to ?>
+            Ethnicity: Viewing <?php echo $from ?> - <?php echo $to ?>
             of <?php echo $dataProvider->totalItemCount ?>
           </h2>
         </div>
         <div class="large-4 column">
-          <?php $form = $this->beginWidget('CActiveForm', array(
-              'id' => 'practice-search-form',
-          )); ?>
+          <?php $form= $this->beginWidget('CActiveForm', array(
+              'id'=>'ethnic-search-form',
+          ));?>
           <?php echo CHtml::textField('search-term', @$_POST['search-term'],
-              array('placeholder' => 'Enter search query...')); ?>
+              array('placeholder'=>'Enter search query...')); ?>
           <?php $this->endWidget(); ?>
         </div>
       </div>
-      <table id="practice-grid" class="grid">
+      <table id="ethnic-grid" class="grid">
         <thead>
         <tr>
-          <th>Practice Contact</th>
-          <th>Practice Address</th>
+          <th>Name</th>
           <th>Code</th>
-          <th>Telephone</th>
         </tr>
         </thead>
         <tbody>
-        <?php foreach ($dataProvided as $practice): ?>
-          <tr id="r<?php echo $practice->id; ?>" class="clickable">
-            <td><?php echo CHtml::encode($practice->contact->getFullName()); ?></td>
-            <td><?php echo CHtml::encode($practice->getAddressLines()); ?></td>
-            <td><?php echo CHtml::encode($practice->code); ?></td>
-            <td><?php echo CHtml::encode($practice->phone); ?></td>
+        <?php foreach ($dataProvided as $ethnic): ?>
+          <tr id="r<?php echo $ethnic->id ?>" class="clickable">
+            <td><?php echo CHtml::encode($ethnic->name); ?></td>
+            <td><?php echo CHtml::encode($ethnic->code); ?></td>
           </tr>
         <?php endforeach; ?>
         </tbody>
@@ -70,24 +66,27 @@ $to = min(($page_num + 1) * $items_per_page, $dataProvider->totalItemCount);
       </table>
     </div>
   </div>
-    <?php if (Yii::app()->user->checkAccess('TaskCreatePractice')): ?>
+
+  <?php if (Yii::app()->user->checkAccess('TaskManageEthnic')): ?>
       <div class="large-4 column end">
         <div class="row">
           <div class="large-12 column end">
             <div class="box generic">
-              <p><?php echo CHtml::link('Create Practice', $this->createUrl('/practice/create')); ?></p>
+              <p><?php echo CHtml::link('Create a new Ethnicity', $this->createUrl('create')); ?></p>
             </div>
           </div>
         </div>
       </div>
-    <?php endif; ?>
+  <?php endif; ?>
 </div>
 
-
 <script type="text/javascript">
-  $('#practice-grid tr.clickable').click(function () {
-    window.location.href = '<?php echo Yii::app()->controller->createUrl('/practice/view')?>/' + $(this).attr('id').match(/[0-9]+/);
-    return false;
-  });
+  $('#ethnic-grid tr.clickable').click(function () {
+//      console.log('<?php //echo Yii::app()->controller->createUrl('view')?>//');
+      window.location.href = '<?php echo Yii::app()->controller->createUrl('view')?>/'+$(this).attr('id').match(/[0-9]+/);
+      return false;
+    });
 </script>
+
+
 

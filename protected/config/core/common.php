@@ -303,7 +303,7 @@ return array(
                 'uri' => '#',
                 'position' => 2,
                 'userrule' => 'isSurgeon',
-                'restricted' => array('admin', 'Report', 'NOD Export', 'Add patient', 'Patient Merge', 'Patient Merge Request', 'Optom co-ordinator', 'View Practitioner', 'Manage Practitioner', 'View Practice', 'Manage Practice', 'Manage Disorder', 'View Disorder'),
+                'restricted' => array('admin', 'Report', 'NOD Export', 'Add patient', 'Patient Merge', 'Patient Merge Request', 'Optom co-ordinator', 'View Practitioner', 'Manage Practitioner', 'View Practice', 'Manage Practice', 'Manage Disorder', 'View Disorder','Manage Ethnic','View Ethnic'),
                 'sub' => array(
                     'admin' => array(
                         'title' => 'Admin',
@@ -371,6 +371,12 @@ return array(
                         'uri' => 'disorder/index',
                         'position' => 12,
                         'restricted' => array('TaskViewDisorder'),
+                    ),
+                    'ethnics' => array(
+                        'title' =>'Ethnics',
+                        'uri' => 'ethnicgroup/index',
+                        'position' => 13,
+                        'restriced' => array('TaskViewEthnic'),
                     ),
                 ),
             ),

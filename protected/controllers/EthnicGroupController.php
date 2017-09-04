@@ -116,7 +116,16 @@ class EthnicGroupController extends BaseController
 	 */
 	public function actionIndex()
 	{
-		$dataProvider=new CActiveDataProvider('EthnicGroup');
+	    $criteria = new CDbCriteria();
+	    $criteria->together = false;
+	    $criteria->order = 'name';
+
+	    if (isset($_POST['search-term'])){
+	        $criteria->addSearchCondition('LOWER(name)', strtolower($_POST['search-term']), true, 'OR');
+            $criteria->addSearchCondition('LOWER(code)', strtolower($_POST['search-term']), true, 'OR');
+            $criteria->addSearchCondition('LOWER(display_order)', strtolower($_POST['search-term']), true, 'OR');
+        }
+		$dataProvider=new CActiveDataProvider('EthnicGroup',array('criteria'=>$criteria));
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 		));

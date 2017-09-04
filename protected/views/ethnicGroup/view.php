@@ -1,42 +1,20 @@
 <?php
 /* @var $this EthnicGroupController */
 /* @var $model EthnicGroup */
-$this->pageTitle = 'View Ethnic';
-//$this->breadcrumbs=array(
-//	'Ethnic Groups'=>array('index'),
-//	$model->name,
-//);
-//
-//$this->menu=array(
-//	array('label'=>'List EthnicGroup', 'url'=>array('index')),
-//	array('label'=>'Create EthnicGroup', 'url'=>array('create')),
-//	array('label'=>'Update EthnicGroup', 'url'=>array('update', 'id'=>$model->id)),
-//	array('label'=>'Delete EthnicGroup', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->id),'confirm'=>'Are you sure you want to delete this item?')),
-//	array('label'=>'Manage EthnicGroup', 'url'=>array('admin')),
-//);
+$this->pageTitle = 'View Ethnicity';
 ?>
 
-<h1 class="badge">Ethnic Summary</h1>
+<h1 class="badge">Ethnicity Summary</h1>
 <div class="row data-row">
   <div class="large-8 column">
     <section class="box patient-info js-toggle-container">
-      <h3 class="box-title">Ethnic Information</h3>
+      <h3 class="box-title">Ethnicity Information</h3>
       <a href="#" class="toggle-trigger toggle-hide js-toggle">
         <span class="icon-showhide">
           Show/hide this section
         </span>
       </a>
       <div class="js-toggle-body">
-        <div class="row data-row">
-          <div class="large-3 column">
-            <div class="data-label"><?php echo CHtml::activeLabel($model, 'id');?></div>
-          </div>
-          <div class="large-9 column">
-            <div class="data-value">
-                <?php echo CHtml::encode($model->id);?>
-            </div>
-          </div>
-        </div>
         <div class="row data-row">
           <div class="large-3 column">
             <div class="data-label"><?php echo CHtml::activeLabel($model,'name');?></div>
@@ -75,7 +53,7 @@ $this->pageTitle = 'View Ethnic';
       <div class="box generic">
         <div class="row">
           <div class="large-12 column end">
-            <p><?php echo CHtml::link('Update Ethnic Details',
+            <p><?php echo CHtml::link('Update Ethnicity Details',
                     $this->createUrl('update', array('id' => $model->id))); ?></p>
           </div>
         </div>

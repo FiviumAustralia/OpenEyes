@@ -1,13 +1,13 @@
 <?php
 /* @var $this EthnicGroupController */
 /* @var $model EthnicGroup */
-$this->pageTitle = 'Create Ethnic';
+$this->pageTitle = 'Create Ethnicity';
 ?>
-<h1 class="badge">Create Ethnic</h1>
+<h1 class="badge">Create Ethnicity</h1>
 <div class="box content admin-content">
   <div class="large-10 column content admin large-centered">
     <div class="box admin">
-      <h1 class="text-center">Create Disorder</h1>
+      <h2 class="text-center">Create Ethnicity</h2>
       <?php $this->renderPartial('_form', array('model'=>$model)); ?>
     </div>
   </div>

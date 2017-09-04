@@ -10,14 +10,14 @@ $from = ($page_num*$items_per_page)+1;
 $to = min(($page_num+1)*$items_per_page, $dataProvider->totalItemCount);
 ?>
 
-<h1 class="badge">Ethnic Groups</h1>
+<h1 class="badge">Ethnicity</h1>
 <div class="row data-row">
   <div class="large-8 column">
     <div class="box generic">
       <div class="row">
         <div class="large-6 column">
           <h2>
-            Ethnics: Viewing <?php echo $from ?> - <?php echo $to ?>
+            Ethnicity: Viewing <?php echo $from ?> - <?php echo $to ?>
             of <?php echo $dataProvider->totalItemCount ?>
           </h2>
         </div>
@@ -33,7 +33,7 @@ $to = min(($page_num+1)*$items_per_page, $dataProvider->totalItemCount);
       <table id="ethnic-grid" class="grid">
         <thead>
         <tr>
-          <th>Ethnic</th>
+          <th>Name</th>
           <th>Code</th>
         </tr>
         </thead>
@@ -72,7 +72,7 @@ $to = min(($page_num+1)*$items_per_page, $dataProvider->totalItemCount);
         <div class="row">
           <div class="large-12 column end">
             <div class="box generic">
-              <p><?php echo CHtml::link('Create a new Ethnic', $this->createUrl('create')); ?></p>
+              <p><?php echo CHtml::link('Create a new Ethnicity', $this->createUrl('create')); ?></p>
             </div>
           </div>
         </div>

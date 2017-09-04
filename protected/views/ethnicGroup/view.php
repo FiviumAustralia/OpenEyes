@@ -70,17 +70,17 @@ $this->pageTitle = 'View Ethnic';
       </div>
     </section>
   </div>
+  <?php if (Yii::app()->user->checkAccess('TaskManageDisorder')):?>
+    <div class="large-4 column end">
+      <div class="box generic">
+        <div class="row">
+          <div class="large-12 column end">
+            <p><?php echo CHtml::link('Update Ethnic Details',
+                    $this->createUrl('update', array('id' => $model->id))); ?></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  <?php endif; ?>
 </div>
-<?php //$this->widget('zii.widgets.CDetailView', array(
-//	'data'=>$model,
-//	'attributes'=>array(
-//		'id',
-//		'name',
-//		'code',
-//		'display_order',
-//		'last_modified_user_id',
-//		'last_modified_date',
-//		'created_user_id',
-//		'created_date',
-//	),
-//)); ?>
+

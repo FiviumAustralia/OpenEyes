@@ -67,7 +67,7 @@ $to = min(($page_num+1)*$items_per_page, $dataProvider->totalItemCount);
     </div>
   </div>
 
-  <?php if (Yii::app()->user->checkAccess('index')): ?>
+  <?php if (Yii::app()->user->checkAccess('TaskManageEthnic')): ?>
       <div class="large-4 column end">
         <div class="row">
           <div class="large-12 column end">

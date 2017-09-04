@@ -131,20 +131,6 @@ class EthnicGroupController extends BaseController
 		));
 	}
 
-	/**
-	 * Manages all models.
-	 */
-	public function actionAdmin()
-	{
-		$model=new EthnicGroup('search');
-		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['EthnicGroup']))
-			$model->attributes=$_GET['EthnicGroup'];
-
-		$this->render('admin',array(
-			'model'=>$model,
-		));
-	}
 
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.

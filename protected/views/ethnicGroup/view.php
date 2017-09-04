@@ -70,7 +70,7 @@ $this->pageTitle = 'View Ethnic';
       </div>
     </section>
   </div>
-  <?php if (Yii::app()->user->checkAccess('TaskManageDisorder')):?>
+  <?php if (Yii::app()->user->checkAccess('TaskManageEthnic')):?>
     <div class="large-4 column end">
       <div class="box generic">
         <div class="row">

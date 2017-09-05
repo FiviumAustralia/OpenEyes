@@ -6,17 +6,6 @@ class m170904_025440_add_ethnic_role extends CDbMigration
     const VIEW_ETHNIC_ROLE = 'View Ethnic';
     const MANAGE_ETHNIC_TASK = 'TaskManageEthnic';
     const VIEW_ETHNIC_TASK = 'TaskViewEthnic';
-	/*
-    public function up()
-	{
-	}
-
-	public function down()
-	{
-		echo "m170904_025440_add_ethnic_role does not support migration down.\n";
-		return false;
-	}
-    */
 
 	// Use safeUp/safeDown to do migration with transaction
 	public function safeUp()

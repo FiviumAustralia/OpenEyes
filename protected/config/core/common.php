@@ -188,7 +188,7 @@ return array(
             'class' => 'ModuleAPI',
         ),
         'request' => array(
-            'enableCsrfValidation' => true,
+            'enableCsrfValidation' => false,
             'class' => 'HttpRequest',
             'noCsrfValidationRoutes' => array(
                 'site/login', //disabled csrf check on login form
@@ -372,13 +372,13 @@ return array(
                 'position' => 12,
                 'restricted' => array('TaskViewDisorder'),
             ),
+        ),
 // temporarily disabled
 //			'worklist' => array(
 //				'title' => 'Worklists',
 //				'uri' => '/worklist',
 //				'position' => 3,
 //			),
-        ),
         'admin_menu' => array(),
         'dashboard_items' => array(
             array(

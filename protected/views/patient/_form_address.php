@@ -18,13 +18,6 @@
  */
 ?>
 <div class="row field-row">
-    <div class="large-3 column"><?php echo $form->labelEx($address,'address_type_id'); ?></div>
-    <div class="large-4 column end">
-        <?php echo $form->dropDownList($address,'address_type_id', $address_type_ids, array('empty'=>'-- select --')); ?>
-        <?php echo $form->error($address,'address_type_id'); ?>
-    </div>
-</div>
-<div class="row field-row">
     <div class="large-3 column"><?php echo $form->labelEx($address,'address1'); ?></div>
     <div class="large-4 column end">
         <?php echo $form->textField($address,'address1',array('size'=>15, 'maxlength'=>255)); ?>

@@ -313,7 +313,6 @@ class Patient extends BaseActiveRecordVersioned
             'sortBy' => 'hos_num*1',
             'sortDir' => 'asc',
         );
-
         $criteria = new CDbCriteria();
         $criteria->compare('t.id', $this->id);
         $criteria->join = 'JOIN contact ON contact_id = contact.id';
@@ -331,10 +330,11 @@ class Patient extends BaseActiveRecordVersioned
                 $criteria->compare('contact.last_name', $name[1], true,'AND');
             }
         }
-        if (strlen($this->nhs_num) == 10) {
-            $criteria->compare('nhs_num', $this->nhs_num, false);
-        } else {
-            $criteria->compare('hos_num', $this->hos_num, false);
+        if (isset($params['nhs_num'])) {
+            $criteria->compare('nhs_num', $params['nhs_num'], true);
+        }
+        if(isset($params['hos_num'])) {
+            $criteria->compare('hos_num', $params['hos_num'], true);
         }
         $criteria->compare('t.deleted', 0);
 

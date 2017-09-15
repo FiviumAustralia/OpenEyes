@@ -63,21 +63,16 @@ class PatientSearch
 
         // NHS number
         if ($nhs = $this->getNHSnumber($term)) {
-            Yii::log("PatientSearch->NHSnumber:".$term);
             $search_terms['nhs_num'] = $nhs;
-
         // Hospital number (assume a < 10 digit number is a hosnum)
         } elseif ($hos_num = $this->getHospitalNumber($term)) {
-            Yii::log("PatientSearch->HospitalNumber:".$term);
             $search_terms['hos_num'] = $hos_num;
 
         // Patient name
         } elseif ($name = $this->getPatientName($term)) {
             $search_terms['patient_name'] = trim($name['patient_name']);
         }
-        Yii::log("PatientSearch->parseTerm:".var_export($this->searchTerms));
         $this->searchTerms = CHtml::encodeArray($search_terms);
-
         return $this->searchTerms;
     }
 
@@ -94,7 +89,6 @@ class PatientSearch
 
         $patient->hos_num = $search_terms['hos_num'];
         $patient->nhs_num = $search_terms['nhs_num'];
-
         // Get the valuse from URL
         $currentPage = Yii::app()->request->getParam('Patient_page');
         $pageSize = Yii::app()->request->getParam('pageSize', 20);
@@ -135,6 +129,8 @@ class PatientSearch
             'sortBy' => $sortBy,
             'sortDir' => $sortDir,
             'currentPage' => $currentPage,
+            'hos_num' => CHtml::decode($search_terms['hos_num']),
+            'nhs_num' => CHtml::decode($search_terms['nhs_num']),
             'patient_name'=>CHtml::decode($search_terms['patient_name']),
         );
 
@@ -179,7 +175,8 @@ class PatientSearch
         $result = null;
         if (preg_match(self::HOSPITAL_NUMBER_REGEX, $term, $matches) || preg_match(Yii::app()->params['hos_num_regex'], $term, $matches)) {
             $hosnum = (isset($matches[2])) ? $matches[2] : $matches[1];
-            $result = sprintf(Yii::app()->params['pad_hos_num'], $hosnum);
+            $result = $hosnum;
+//            $result = sprintf(Yii::app()->params['pad_hos_num'], $hosnum);
         }
 
         return $result;

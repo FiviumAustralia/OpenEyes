@@ -669,7 +669,6 @@ select {
   margin-right: auto;
   margin-top: 0;
   margin-bottom: 0;
-  max-width: 1230px;
 }
 /* line 172, ../components/foundation/scss/foundation/components/_global.scss */
 .row:before, .row:after {
@@ -2760,13 +2759,13 @@ blockquote p {
 }
 /* line 17, ../sass/openeyes/components/_global.scss */
 html, body {
-  background: #d4d1cd;
+  background-color: #dfdfdf;
 }
 
 @media print {
   /* line 22, ../sass/openeyes/components/_global.scss */
   html, body {
-    background: #ffffff;
+    background: #fff;
   }
 }
 /* line 27, ../sass/openeyes/components/_global.scss */
@@ -2776,12 +2775,12 @@ html, body {
 
 /* line 31, ../sass/openeyes/components/_global.scss */
 .print {
-  background: #ffffff;
+  background: #fff;
 }
 
 /* line 35, ../sass/openeyes/components/_global.scss */
 .wordbreak {
-  background: #ffffff;
+  background: #fff;
 }
 
 /* line 17, ../sass/openeyes/components/_containers.scss */
@@ -2791,7 +2790,6 @@ html, body {
   margin-right: auto;
   margin-top: 0;
   margin-bottom: 0;
-  max-width: 1230px;
 }
 /* line 172, ../components/foundation/scss/foundation/components/_global.scss */
 .container:before, .container:after {
@@ -2806,11 +2804,8 @@ html, body {
 /* line 18, ../sass/openeyes/components/containers/_main.scss */
 .container.main {
   border-radius: 5px;
-  background: #dae6f1 url('../img/_structure/gradient_bg.png?1502795878') 0 0 repeat-x;
   border: 2px solid #b3b0ae;
   margin-bottom: 40px;
-  width: 1234px;
-  max-width: 1234px;
 }
 @media print {
   /* line 18, ../sass/openeyes/components/containers/_main.scss */
@@ -4696,10 +4691,6 @@ tfoot.pagination-container .pagination-view-all {
 /* line 29, ../sass/openeyes/components/boxes/_content.scss */
 .box.content {
   background: #dae6f1;
-}
-/* line 32, ../sass/openeyes/components/boxes/_content.scss */
-.box.content.admin-content {
-  padding: 16px 0;
 }
 
 /* line 28, ../sass/openeyes/components/boxes/_generic.scss */
@@ -7966,7 +7957,7 @@ To change this license header, choose License Headers in Project Properties.
 To change this template file, choose Tools | Templates
 and open the template in the editor.
 */
-/* 
+/*
     Created on : Dec 9, 2016, 11:56:22 AM
     Author     : sabi
 */

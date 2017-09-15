@@ -213,7 +213,7 @@ class Patient extends BaseActiveRecordVersioned
         $patient_dob_date = DateTime::createFromFormat('d-m-Y', $this->$attribute);
 
         if( !$patient_dob_date || !$format_check){
-            $this->addError($attribute, 'Invalid date. Please enter the date in the format dd/mm/yyyy');
+            $this->addError($attribute, 'Invalid date. Value does not fall within the expected range.');
         }
     }
     public function deathDateFormatValidator($attribute, $params)

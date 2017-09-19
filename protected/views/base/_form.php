@@ -61,9 +61,9 @@ if (!Yii::app()->user->isGuest) {
                         <span class="change-firm"><a href="#" data-window-title="Select a new Site and/or <?= Firm::contextLabel() ?>">change</a></span></li>
 				</ul>
 			</li>
-			<li class="oe-user-home"><a class="oe-user-big-icon home" href="/">Home</a></li>
+			<li class="oe-user-home"><a class="oe-user-big-icon home" href="/"></a></li>
 			<?= $menuHelper->render() ?>
-			<li class="oe-user-logout"><a class="oe-user-big-icon logout" href="<?= Yii::app()->createUrl('/site/logout'); ?>">Logout</a></li>
+			<li class="oe-user-logout"><a class="oe-user-big-icon logout" href="<?= Yii::app()->createUrl('/site/logout'); ?>"></a></li>
 		</ul>
 
 	</div>

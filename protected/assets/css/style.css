@@ -2759,8 +2759,7 @@ blockquote p {
 }
 /* line 17, ../sass/openeyes/components/_global.scss */
 html, body {
-  background: linear-gradient(0deg, #062c53, #5a82ab);
-  background-attachment: fixed;
+  background-color: #dfdfdf;
 }
 
 @media print {

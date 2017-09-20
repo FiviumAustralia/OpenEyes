@@ -24,9 +24,6 @@
 }
 .open-eyes .container.main {
   border-radius: 0 0 5px 5px;
-  background-color: #6692c6;
-  background-image: linear-gradient(#abc3dd, #6692c6 90px, #6692c6 180px, #c6cddc);
-  background-attachment: fixed;
   border: 0;
   margin-bottom: 0;
   padding: 0;

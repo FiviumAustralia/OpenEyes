@@ -105,19 +105,19 @@ class PatientDiagnosisParameter extends CaseSearchParameter implements DBProvide
      */
     public function query($searchProvider)
     {
-        $query = "SELECT DISTINCT p.id 
-FROM patient p 
+        $query = "SELECT DISTINCT p.id
+FROM patient p
 LEFT JOIN patient_diagnosis_assignment paa
   ON paa.patient_id = p.id
-LEFT JOIN disorder d 
+LEFT JOIN disorder d
   ON d.id = paa.disorder_id
 WHERE LOWER(d.term) LIKE LOWER(:p_d_value_$this->id)";
         if ($this->firm_id !== '' && $this->firm_id !== null) {
             $query = "SELECT DISTINCT p.id 
-FROM patient p 
+FROM patient p
 LEFT JOIN patient_diagnosis_assignment paa
   ON paa.patient_id = p.id
-LEFT JOIN disorder d 
+LEFT JOIN disorder d
   ON d.id = paa.disorder_id
 LEFT JOIN et_ophciexamination_diagnoses et_diag
   ON et_diag.id = paa.element_diagnoses_id
@@ -136,7 +136,7 @@ WHERE LOWER(d.term) LIKE LOWER(:p_d_value_$this->id)
                 // Do nothing extra.
                 break;
             case 'NOT LIKE':
-                $query = "SELECT DISTINCT p1.id 
+                $query = "SELECT DISTINCT p1.id
 FROM patient p1
 WHERE p1.id NOT IN (
   $query

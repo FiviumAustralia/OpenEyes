@@ -43,7 +43,6 @@ class NodExportController extends BaseController
      * @var int 
      */
     private $extractIdentifier;
-    
 
     public function accessRules()
     {
@@ -115,8 +114,7 @@ class NodExportController extends BaseController
         // TODO: need to create views!!!
         $this->render('//nodexport/index');
     }
-    
-    
+
      /**
      * Generates CSV and zip files then sends to the browser 
      */
@@ -219,8 +217,6 @@ class NodExportController extends BaseController
         }
         return $resultIds;
     }
-
-
 
     private function createAllTempTables()
     {
@@ -550,11 +546,8 @@ EOL;
 
         Yii::app()->db->createCommand($cleanQuery)->execute();
     }
-    
-    
-    
-    
-    
+
+
     /********** Surgeon **********/
 
     private function createTmpRcoNodSurgeon()
@@ -623,9 +616,6 @@ EOL;
     
     /********** end of Surgeon **********/
 
-    
-    
-    
     
     /********** EpisodeDiabeticDiagnosis **********/
     
@@ -718,9 +708,6 @@ EOL;
     }
     
     /********** end of EpisodeDiabeticDiagnosis **********/
-
-
-
     
     
     /********** Patient **********/
@@ -800,10 +787,6 @@ EOL;
     
     /********** end of Patient **********/
     
-    
-    
-    
-    
     /********** PatientCVIStatus **********/
     
     private function createTmpRcoNodPatientCVIStatus()
@@ -863,10 +846,6 @@ EOL;
     }
     
     /********** end of PatientCVIStatus **********/
-    
-    
-    
-    
     
     /********** Episode **********/
     
@@ -998,11 +977,7 @@ EOL;
     }
     
     /********** end of Episode **********/
-    
-    
-    
-    
-    
+
     /********** EpisodePreOpAssessment **********/
     
     private function createTmpRcoNodEpisodePreOpAssessment()
@@ -1085,10 +1060,7 @@ EOL;
     }
     
     /********** end of EpisodePreOpAssessment **********/
-    
-    
-    
-    
+
     
     /********** EpisodeRefraction **********/
     
@@ -1187,9 +1159,7 @@ EOL;
     }
     
     /********** end of EpisodeRefraction **********/
-    
-    
-    
+
 
     /********** EpisodeDiagnosis **********/
     
@@ -1297,9 +1267,6 @@ EOL;
     }
     
     /********** end of EpisodeDiagnosis **********/
-
-
-
 
 
     /********** EpisodeDrug **********/
@@ -1444,14 +1411,8 @@ EOL;
     /********** end of EpisodeDrug **********/
     
     
-    
-    
-    
-    
-    
     /********** EpisodeBiometry **********/
-    
-    
+
     private function createTmpRcoNodEpisodeBiometry()
     {
         
@@ -1628,12 +1589,6 @@ EOL;
     
     /********** EpisodeBiometry **********/
     
-    
-    
-    
-    
-
-    
     /********** EpisodeIOP **********/
     
     /**
@@ -1751,10 +1706,6 @@ EOL;
         fclose($df);
         return ob_get_clean();
     }
-    
-
-    
-    
     
     /********** EpisodePostOpComplication **********/
     
@@ -1875,10 +1826,7 @@ EOL;
     }
     
     /********** end of EpisodePostOpComplication **********/
-    
-    
-    
-    
+
     
     /********** EpisodeOperationCoPathology **********/
 
@@ -2299,7 +2247,6 @@ AND c.nod_date <= op.ListedDate
 EOL;
         return $query;    
     }
-    
     
     private function getEpisodeOperationCoPathology()
     {

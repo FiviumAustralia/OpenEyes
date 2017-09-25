@@ -2247,7 +2247,7 @@ AND c.nod_date <= op.ListedDate
 EOL;
         return $query;    
     }
-    
+
     private function getEpisodeOperationCoPathology()
     {
 

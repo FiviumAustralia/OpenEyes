@@ -174,6 +174,7 @@ class AUSPatientTest extends CDbTestCase
         //Remove the Gender
         $new_pat->gender = NULL;
         $new_pat->setScenario('self_register');
+        $new_pat->dob = '01/01/1970';
 
         //Check that this fails and in the right manner
         $this->assertFalse($new_pat->save());
@@ -229,6 +230,7 @@ class AUSPatientTest extends CDbTestCase
         $new_pat = $this->getUnsavedNewPatient('patient1');
         //don't add  the referringPractitioner
         $new_pat->setScenario('referral');
+        $new_pat->dob = '01/01/1970';
 
         //Check that this fails and in the right manner
         $this->assertFalse($new_pat->save());
@@ -244,6 +246,7 @@ class AUSPatientTest extends CDbTestCase
         $new_pat = $this->getUnsavedNewPatient('patient1');
         $new_pat->setScenario('referral');
         $new_pat->gp_id = $this->getGP()->id;
+        $new_pat->dob = '01/01/1970';
         //Remove the practice
         $new_pat->practice_id = NULL;
 

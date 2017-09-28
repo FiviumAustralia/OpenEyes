@@ -618,8 +618,6 @@ class User extends BaseActiveRecordVersioned
         if (!$this->global_firm_rights && count($firms) === 0) {
             throw new FirmSaveException('When global firm rights are not set, a firm must be selected');
         }
-        //Set the has_selected_firms to be true
-        User::updateByPk($this->id, array("has_selected_firms"=>1));
         $transaction = Yii::app()->db->beginTransaction();
         FirmUserAssignment::model()->deleteAll('user_id = :user_id', array('user_id' => $this->id));
         foreach ($firms as $firm) {
@@ -630,7 +628,8 @@ class User extends BaseActiveRecordVersioned
                 throw new CDbException('Unable to save firm assignment');
             }
         }
-
+        //Set the has_selected_firms to be true
+        User::updateByPk($this->id, array("has_selected_firms"=>1));
         $transaction->commit();
     }
 

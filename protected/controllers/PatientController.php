@@ -1669,11 +1669,19 @@ class PatientController extends BaseController
                         }
                     }
                 } else {
+                    $address->validate();
                     // patient or address failed to save
                     $transaction->rollback();
 
                 }
             } else {
+                //to show validation error messages to the user
+                $address->validate();
+                $patient->validate();
+
+                if (isset($referral)) {
+                    $referral->validate();
+                }
                 // remove contact_id validation error
                 $patient->clearErrors('contact_id');
                 $address->clearErrors('contact_id');

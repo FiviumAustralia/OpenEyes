@@ -1978,6 +1978,23 @@ class PatientController extends BaseController
 
         echo CJSON::encode($result);
     }
+
+    public function actionFindDuplicates($firstName, $last_name, $dob, $id = null)
+    {
+        $patients = Patient::findDuplicates($firstName, $last_name, $dob, $id);
+
+        if (count($patients) !== 0) {
+            $this->renderPartial('crud/_conflicts', array(
+                'patients' => $patients,
+                'name' => $firstName . ' ' . $last_name
+            ));
+        } else {
+            $this->renderPartial('crud/_conflicts', array(
+                'name' => $firstName . ' ' . $last_name
+            ));
+        }
+    }
+
 }
         else {
             $this->renderPartial('crud/_conflicts', array(

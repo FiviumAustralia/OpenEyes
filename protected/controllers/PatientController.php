@@ -1988,8 +1988,7 @@ class PatientController extends BaseController
                 'patients' => $patients,
                 'name' => $firstName . ' ' . $last_name
             ));
-        }
-        else {
+        } else {
             $this->renderPartial('crud/_conflicts', array(
                 'name' => $firstName . ' ' . $last_name
             ));

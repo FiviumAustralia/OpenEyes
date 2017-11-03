@@ -72,18 +72,15 @@ $(document).ready(function(){
       uri,
       serializedForm,
       $form;
-
+    object = null;
     if ($(e.target).data('object')) {
       object = $(e.target).data('object');
-      if (object.charAt(object.length - 1) !== 's') {
-        object = object + 's';
-      }
     } else {
       hrefArray = window.location.href.split('?')[0].split('/');
 
       for (var i = 0; i < hrefArray.length; i++) {
         if (hrefArray[i] === 'admin') {
-          object = hrefArray[parseInt(i) + 1].replace(/s$/, '');
+          object = hrefArray[parseInt(i) + 1];
         }
       }
     }
@@ -91,9 +88,11 @@ $(document).ready(function(){
     $form = $('#admin_' + object);
     if($('#generic-admin-list, #generic-admin-form').length){
       $form = $('#generic-admin-list, #generic-admin-form');
+
     }
     serializedForm = $form.serialize();
-    if (serializedForm.length === 0) {
+
+    if ( $form.find('table.grid tbody input[type="checkbox"]:checked').length === 0 ) {
       new OpenEyes.UI.Dialog.Alert({
         content: "Please select one or more items to delete."
       }).open();

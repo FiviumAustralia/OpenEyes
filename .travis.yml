@@ -1,0 +1,51 @@
+language: php
+sudo: required
+dist: trusty
+php:
+  - '5.6'
+install:
+  # Get vendor dependencies (Both PHP and JS)
+  - composer install
+  - npm install
+
+  # Git Clone OE Dependencies. Sample module contains the MySQL data dump necessary for the unit tests to run.
+  - git clone https://github.com/openeyes/eyedraw.git protected/modules/eyedraw
+  - git clone https://github.com/openeyes/sample.git protected/modules/sample
+before_script:
+  - echo 'date.timezone = "Australia/Melbourne"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini # Set the PHP timezone to UTC +10:00:00
+  - sudo chmod a+x mysql-ci.sh # Make the shell script to populate the databases executable.
+  - ./mysql-ci.sh # Configure the test database
+script:
+  # Create the runtime folders.
+  - mkdir assets
+  - mkdir cache
+  - cd protected
+  - mkdir cache
+  - mkdir cache/events
+
+  # Copy the sample config files into place.
+  - cp config/local.sample/common.sample.php config/local/common.php
+  - cp config/local.sample/console.vagrant.php config/local/console.php
+
+  # Run migrations
+  - php yiic migrate --interactive=0
+  - php yiic migratemodules --interactive=0
+  - php yiic generateuniquecode --interactive=0
+  - php yiic generatesessions --interactive=0
+  - php yiic eyedrawconfigload --filename="./config/core/OE_ED_CONFIG.xml"
+
+  # Run unit tests.
+  - cd tests
+  - php ../../vendor/phpunit/phpunit/phpunit.php ../modules/OECaseSearch/tests/unit
+  - php ../../vendor/phpunit/phpunit/phpunit.php ../modules/OETrial/tests/unit
+  - php ../../vendor/phpunit/phpunit/phpunit.php ../modules/OphCiExamination/tests/unit/models/PatientAllergyParameterTest
+  - php ../../vendor/phpunit/phpunit/phpunit.php ../modules/OphCiExamination/tests/unit/models/FamilyHistoryParameterTest
+  - php ../../vendor/phpunit/phpunit/phpunit.php ./unit/components/DBProviderTest
+  - php ../../vendor/phpunit/phpunit/phpunit.php ./unit/models/AUSPatientTest
+notifications:
+  slack:
+    on_pull_requests: false
+    rooms:
+      - secure: "ZE1lADEmUZpa6jjLeP1/3tWa+q/7/OOSXv5PTs1UKzCwoWBbx4BwKYfTilPOhtK7fKzSUwhPxMYpkiEEZBzxIaSiBSfhI4THdDUtMnyqbFtTJunS/MaoN6iv7yaNo80xifMvCsCTdtalGLwbdVnrQS4a41P6IRqc2Ky3nwbK8f2DrMZwph4GGv67RsWF8sG71sJQpXOm8vRtKYRW/BNpytS/aSI5Ep6ajnMI2W/pWyS6ME8NYmKBMc8g7SaJ8qhyErBLA2isZzEjd8p1fbdzCIvefJh0BctOcT0Te0P0kg+PF72GroAvsOIYOGYMevrP2CX9FkEOZlM5xFyt7LAny4I5Ry+X90+KtpMSUVi/9MfKc88ZGwl5R34PAmOP5vNXftSJOD9tAAnS9wc43J4sNyfuXJ3XpFXqx1iS1uJx2jOtGKV5SQjqa/7SGCJt2P2y6xH7E8rF4DCSosoIio1ty/Y8TPb8gOrvrR6nbXBS2/gUsHdTafUi584AeYW3PygtL3ddTb9PiQQXbOcoxElRHCJsqmt2sGjjE9YY5dFOujcdlKptoK65KOwv+nSgsGQWMhXR43mvxtOrAIM20PUYmfaCAbZ03EKt5gqTPsPTcUqpVa3dq7HB93D8wFudu5n6SttFexyyx1we2gTMka9yGSP1NHclkXdZoWfdAZ6DM2Y="
+    on_success: change
+    on_failure: always

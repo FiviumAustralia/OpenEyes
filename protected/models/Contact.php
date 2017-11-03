@@ -5,16 +5,15 @@
  * (C) Moorfields Eye Hospital NHS Foundation Trust, 2008-2011
  * (C) OpenEyes Foundation, 2011-2013
  * This file is part of OpenEyes.
- * OpenEyes is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- * OpenEyes is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with OpenEyes in a file titled COPYING. If not, see <http://www.gnu.org/licenses/>.
+ * OpenEyes is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * OpenEyes is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * You should have received a copy of the GNU Affero General Public License along with OpenEyes in a file titled COPYING. If not, see <http://www.gnu.org/licenses/>.
  *
  * @link http://www.openeyes.org.uk
  *
  * @author OpenEyes <info@openeyes.org.uk>
- * @copyright Copyright (c) 2008-2011, Moorfields Eye Hospital NHS Foundation Trust
  * @copyright Copyright (c) 2011-2013, OpenEyes Foundation
- * @license http://www.gnu.org/licenses/gpl-3.0.html The GNU General Public License V3.0
+ * @license http://www.gnu.org/licenses/agpl-3.0.html The GNU Affero General Public License V3.0
  */
 
 /**
@@ -70,7 +69,8 @@ class Contact extends BaseActiveRecordVersioned
         return array(
             array('nick_name', 'length', 'max' => 80),
             array('title, first_name, last_name, nick_name, primary_phone, qualifications, maiden_name, contact_label_id', 'safe'),
-            array('first_name, last_name', 'required', 'on' => 'manualAddPatient'),
+            array('first_name, last_name', 'required', 'on' => array('manualAddPatient','referral','self_register','other_register','manage_gp',)),
+            array('first_name', 'required', 'on' => array('manage_practice')),
             array('id, nick_name, primary_phone, title, first_name, last_name, qualifications', 'safe', 'on' => 'search'),
         );
     }
@@ -119,7 +119,7 @@ class Contact extends BaseActiveRecordVersioned
             'nick_name' => 'Nickname',
             'primary_phone' => 'Phone number',
             'title' => 'Title',
-            'first_name' => 'First name',
+            'first_name' => $this->scenario === 'manage_practice' ? 'Practice Name' : 'First name',
             'last_name' => 'Last name',
             'qualifications' => 'Qualifications',
             'contact_label_id' => 'Label',
@@ -195,12 +195,36 @@ class Contact extends BaseActiveRecordVersioned
         if (!$cl = ContactLabel::model()->find('name=?', array($label))) {
             throw new Exception("Unknown contact label: $label");
         }
-
         $contacts = array();
 
+        $patientSearch = new PatientSearch();
+
+        $terms = $patientSearch->getContactTitleName($term);
+
         $criteria = new CDbCriteria();
-        $criteria->addSearchCondition('lower(last_name)', $term, false);
-        if ($exclude) {
+        if (isset($terms['title'])){
+            $criteria->addSearchCondition('lower(title)', $terms['title'], false, 'AND');
+        }
+        if (isset($terms['contact_name'])){
+            if (count($terms['contact_name'])===1) {
+                $criteria2 = new CDbCriteria;
+                $criteria2->addSearchCondition('lower(last_name)', $terms['contact_name'][0], false);
+                $criteria2->addSearchCondition('lower(first_name)', $terms['contact_name'][0], false,'OR');
+                $criteria->mergeWith($criteria2);
+            }
+            else {
+                $criteria2 = new CDbCriteria;
+                $criteria2->addSearchCondition('lower(last_name)', $terms['contact_name'][1], false, 'AND', 'LIKE');
+                $criteria2->addSearchCondition('lower(first_name)', $terms['contact_name'][0], false, 'AND', 'LIKE');
+                $criteria3 = new CDbCriteria;
+                $criteria3->addSearchCondition('lower(last_name)', $terms['contact_name'][0], false, 'AND', 'LIKE');
+                $criteria3->addSearchCondition('lower(first_name)', $terms['contact_name'][1], false, 'AND', 'LIKE');
+                $criteria2->mergeWith($criteria3,'OR');
+                $criteria->mergeWith($criteria2);
+            }
+        }
+
+         if ($exclude) {
             $criteria->compare('contact_label_id', '<>' . $cl->id);
         } else {
             $criteria->compare('contact_label_id', $cl->id);
@@ -216,9 +240,8 @@ class Contact extends BaseActiveRecordVersioned
             $criteria->join = 'join ' . $join . ' model_join on model_join.contact_id = t.id';
         }
         $found_contacts = self::model()->with(array('locations' => array('with' => array('site', 'institution')), 'label'))->findAll($criteria);
-
         foreach ($found_contacts as $contact) {
-            if ($contact->locations) {
+            if (isset($contact->locations)) {
                 foreach ($contact->locations as $location) {
                     $contacts[] = array(
                         'line' => $contact->contactLine($location),

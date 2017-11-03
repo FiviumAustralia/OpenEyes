@@ -3,7 +3,7 @@
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
-         stopOnFailure="true"
+         stopOnFailure="false"
          verbose="true">
     <directory suffix="Test.php">../modules/*/tests/unit/models</directory>
     <testsuites>
@@ -37,7 +37,9 @@
             <directory suffix=".php">../models</directory>
             <directory suffix=".php">../components</directory>
             <directory suffix=".php">../controllers</directory>
-            <directory suffix=".php">../modules/*/tests/unit/models</directory>
+            <directory suffix=".php">../modules/*/controllers</directory>
+            <directory suffix=".php">../modules/*/models</directory>
+            <directory suffix=".php">../modules/*/components</directory>
             <exclude>
                 <directory suffix=".php">../components/summaryWidgets/views</directory>
                 <directory suffix=".php">../components/views</directory>

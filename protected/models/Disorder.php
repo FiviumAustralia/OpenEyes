@@ -5,16 +5,15 @@
  * (C) Moorfields Eye Hospital NHS Foundation Trust, 2008-2011
  * (C) OpenEyes Foundation, 2011-2013
  * This file is part of OpenEyes.
- * OpenEyes is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- * OpenEyes is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with OpenEyes in a file titled COPYING. If not, see <http://www.gnu.org/licenses/>.
+ * OpenEyes is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * OpenEyes is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * You should have received a copy of the GNU Affero General Public License along with OpenEyes in a file titled COPYING. If not, see <http://www.gnu.org/licenses/>.
  *
  * @link http://www.openeyes.org.uk
  *
  * @author OpenEyes <info@openeyes.org.uk>
- * @copyright Copyright (c) 2008-2011, Moorfields Eye Hospital NHS Foundation Trust
  * @copyright Copyright (c) 2011-2013, OpenEyes Foundation
- * @license http://www.gnu.org/licenses/gpl-3.0.html The GNU General Public License V3.0
+ * @license http://www.gnu.org/licenses/agpl-3.0.html The GNU Affero General Public License V3.0
  */
 
 /**
@@ -26,6 +25,7 @@
  * @property string $fully_specified_name
  * @property string $term
  * @property int $systemic
+ * @property int $specialty_id
  *
  * The followings are the available model relations:
  * @property CommonOphthalmicDisorder[] $commonOphthalmicDisorders
@@ -49,6 +49,8 @@ class Disorder extends BaseActiveRecordVersioned
     public static $SNOMED_DIABETES_SET = array(73211009, 74627003);
     public static $SNOMED_DIABETES_TYPE_I_SET = array(46635009, 420868002);
     public static $SNOMED_DIABETES_TYPE_II_SET = array(44054006, 422014003);
+
+    public $is_ophthalmic;
 
     /**
      * Returns the static model of the specified AR class.
@@ -86,12 +88,12 @@ class Disorder extends BaseActiveRecordVersioned
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('id, fully_specified_name, term', 'required'),
+            array('fully_specified_name, term', 'required'),
             array('id', 'length', 'max' => 10),
             array('fully_specified_name, term', 'length', 'max' => 255),
             // The following rule is used by search().
             // Please remove those attributes that should not be searched.
-            array('id, fully_specified_name, term, systemic', 'safe', 'on' => 'search'),
+            array('id, fully_specified_name, term, specialty_id, systemic, is_ophthalmic, active', 'safe'),
         );
     }
 
@@ -141,6 +143,8 @@ class Disorder extends BaseActiveRecordVersioned
             'fully_specified_name' => 'Fully Specified Name',
             'term' => 'Term',
             'systemic' => 'Systemic',
+            'is_ophthalmic' => 'Is Ophthalmic',
+            'specialty_id' => 'Specialty',
         );
     }
 

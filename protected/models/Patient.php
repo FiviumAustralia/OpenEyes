@@ -5,16 +5,15 @@
  * (C) Moorfields Eye Hospital NHS Foundation Trust, 2008-2011
  * (C) OpenEyes Foundation, 2011-2013
  * This file is part of OpenEyes.
- * OpenEyes is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- * OpenEyes is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with OpenEyes in a file titled COPYING. If not, see <http://www.gnu.org/licenses/>.
+ * OpenEyes is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * OpenEyes is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * You should have received a copy of the GNU Affero General Public License along with OpenEyes in a file titled COPYING. If not, see <http://www.gnu.org/licenses/>.
  *
  * @link http://www.openeyes.org.uk
  *
  * @author OpenEyes <info@openeyes.org.uk>
- * @copyright Copyright (c) 2008-2011, Moorfields Eye Hospital NHS Foundation Trust
  * @copyright Copyright (c) 2011-2013, OpenEyes Foundation
- * @license http://www.gnu.org/licenses/gpl-3.0.html The GNU General Public License V3.0
+ * @license http://www.gnu.org/licenses/agpl-3.0.html The GNU Affero General Public License V3.0
  */
 
 /**
@@ -40,28 +39,46 @@
  * @property int $created_user_id
  * @property int $last_modified_user_id
  * @property datetime $no_allergies_date
- * @property tinyint $deleted
+ * @property int $deleted
  * @property int $ethnic_group_id
+ * @property int $patient_source
  *
  * The followings are the available model relations:
  * @property Episode[] $episodes
  * @property Address[] $addresses
  * @property Address $address Primary address
  * @property Contact[] $contactAssignments
+ * @property Contact $contact
  * @property Gp $gp
+ * @property PatientReferral $referral
+ * @property Medication[] $medications
  * @property Practice $practice
  * @property Allergy[] $allergies
+ * @property SecondaryDiagnosis[] $secondarydiagnoses
  * @property EthnicGroup $ethnic_group
  * @property CommissioningBody[] $commissioningbodies
- * @property SocialHistory $socialhistory
+ * @property \OEModule\OphCiExamination\models\SocialHistory $socialhistory
+ * @property TrialPatient[] $trials
+ * @property \OEModule\OphCiExamination\models\OphCiExamination_Diagnosis[] $diagnoses
+ * @property \OEModule\OphCiExamination\models\SystemicDiagnoses_Diagnosis[] $systemic_diagnoses
  *
  */
 class Patient extends BaseActiveRecordVersioned
 {
     const CHILD_AGE_LIMIT = 16;
 
+    const PATIENT_SOURCE_OTHER = 0;
+    const PATIENT_SOURCE_REFERRAL = 1;
+    const PATIENT_SOURCE_SELF_REGISTER = 2;
+
     public $use_pas = true;
     private $_orderedepisodes;
+
+    /**
+     * Holds errors PAS related errors
+     * @var array
+     */
+    private $_pas_errors = array();
 
     /**
      * Returns the static model of the specified AR class.
@@ -111,16 +128,19 @@ class Patient extends BaseActiveRecordVersioned
     {
         return array(
             array('pas_key', 'length', 'max' => 10),
-            array('hos_num', 'required', 'on' => 'pas'),
+            array('dob, patient_source', 'required'),
+            array('hos_num', 'required'),
+            array('hos_num, nhs_num','unique'),
             array('hos_num, nhs_num', 'length', 'max' => 40),
-            array('hos_num', 'hosNumValidator'), // 'on' => 'manual'
             array('gender,is_local', 'length', 'max' => 1),
-            array('dob, is_deceased, date_of_death, ethnic_group_id, gp_id, practice_id, is_local,nhs_num_status_id', 'safe'),
-            array('gender, dob', 'required', 'on' => 'manual'),
+            array('dob, is_deceased, date_of_death, ethnic_group_id, gp_id, practice_id, is_local,nhs_num_status_id, patient_source', 'safe'),
+            array('gender', 'required', 'on' => 'self_register'),
+            array('gp_id, practice_id', 'required', 'on' => 'referral'),
             array('deleted', 'safe'),
-            array('dob', 'dateFormatValidator', 'on' => 'manual'),
-            array('date_of_death', 'deathDateFormatValidator', 'on' => 'manual'),
-            array('dob, hos_num, nhs_num, date_of_death, deleted,is_local', 'safe', 'on' => 'search'),
+            array('dob', 'dateFormatValidator', 'on' => array('manual', 'self_register', 'referral', 'other_register')),
+            array('date_of_death', 'deathDateFormatValidator', 'on' => array('manual', 'self_register', 'referral', 'other_register')),
+            array('dob, hos_num, nhs_num, date_of_death, deleted,is_local, patient_source', 'safe', 'on' => 'search'),
+            array('dob','dateOfBirthRangeValidator', 'on' => array('manual', 'self_register', 'referral', 'other_register')),
         );
     }
 
@@ -137,7 +157,7 @@ class Patient extends BaseActiveRecordVersioned
                 'condition' => 'support_services=1',
             ),
             'episodes' => array(self::HAS_MANY, 'Episode', 'patient_id',
-                'condition' => '(patient_episode.legacy=0 or patient_episode.legacy is null)',
+                'condition' => '(patient_episode.legacy=0 or patient_episode.legacy is null) and (patient_episode.change_tracker=0 or patient_episode.change_tracker is null)',
                 'alias' => 'patient_episode',
             ),
             'contact' => array(self::BELONGS_TO, 'Contact', 'contact_id'),
@@ -147,7 +167,15 @@ class Patient extends BaseActiveRecordVersioned
             'allergies' => array(self::MANY_MANY, 'Allergy', 'patient_allergy_assignment(patient_id, allergy_id)',
                 'alias' => 'patient_allergies',
                 'order' => 'patient_allergies.name', ),
+            'medications' => array(self::MANY_MANY, '\OEModule\OphCiExamination\models\HistoryMedicationsEntry', 'patient_medication_assignment(patient_id, id)',
+                'alias' => 'patient_medications',
+                'order' => 'patient_medications.medication_name', ),
+            'diagnoses' => array(self::MANY_MANY, '\OEModule\OphCiExamination\models\OphCiExamination_Diagnosis', 'patient_diagnosis_assignment(patient_id, id)',
+                'alias' => 'patient_diagnoses',
+                'order' => 'patient_diagnoses.principal DESC', ),
+            'systemic_diagnoses' => array(self::MANY_MANY, '\OEModule\OphCiExamination\models\SystemicDiagnoses_Diagnosis', 'patient_systemic_diagnosis(patient_id, id)'),
             'allergyAssignments' => array(self::HAS_MANY, 'PatientAllergyAssignment', 'patient_id'),
+            'referral' => array(self::HAS_ONE, 'PatientReferral', 'patient_id'),
             'risks' => array(
                 self::MANY_MANY,
                 'Risk',
@@ -159,43 +187,14 @@ class Patient extends BaseActiveRecordVersioned
             'secondarydiagnoses' => array(self::HAS_MANY, 'SecondaryDiagnosis', 'patient_id'),
             'ethnic_group' => array(self::BELONGS_TO, 'EthnicGroup', 'ethnic_group_id'),
             'previousOperations' => array(self::HAS_MANY, 'PreviousOperation', 'patient_id', 'order' => 'CASE WHEN Date IS NULL THEN 1 ELSE 0 END, Date'),
-            'familyHistory' => array(self::HAS_MANY, 'FamilyHistory', 'patient_id', 'order' => 'created_date'),
-            //'medications' => array(self::HAS_MANY, 'Medication', 'patient_id', 'order' => 'created_date', 'condition' => 'end_date is null'),
-            //'previous_medications' => array(self::HAS_MANY, 'Medication', 'patient_id', 'order' => 'created_date', 'condition' => 'end_date is not null'),
             'commissioningbodies' => array(self::MANY_MANY, 'CommissioningBody', 'commissioning_body_patient_assignment(patient_id, commissioning_body_id)'),
-            'referrals' => array(self::HAS_MANY, 'Referral', 'patient_id'),
             'lastReferral' => array(self::HAS_ONE, 'Referral', 'patient_id', 'order' => 'received_date desc'),
-            'socialhistory' => array(self::HAS_ONE, 'SocialHistory', 'patient_id'),
             'adherence' => array(self::HAS_ONE, 'MedicationAdherence', 'patient_id'),
             'nhsNumberStatus' => array(self::BELONGS_TO, 'NhsNumberVerificationStatus', 'nhs_num_status_id'),
             'geneticsPatient' => array(self::HAS_ONE, 'GeneticsPatient', 'patient_id'),
+            'trials' => array(self::HAS_MANY, 'TrialPatient', 'patient_id'),
+            'patientuserreferral' => array(self::HAS_MANY, 'PatientUserReferral', 'patient_id','alias' => 'patient_user_referral','order' => 'patient_user_referral.created_date DESC' ),
         );
-    }
-
-    /**
-     * Validate the hos_num attribute based on the PatientSearch pattern.
-     * this was implemented because of the leading zero check
-     * 0123 and 123 is different hos_num when using the 'unique' built in validator
-     *
-     * @param $attribute
-     * @param $params
-     */
-    public function hosNumValidator($attribute, $params)
-    {
-        if($this->scenario == 'manual'){
-
-            $patient_search = new PatientSearch();
-            if ($patient_search->getHospitalNumber($this->hos_num)) {
-                $dataProvider = $patient_search->search($this->hos_num);
-
-                $item_count = $dataProvider->totalItemCount;
-                if( $item_count && $item_count > 0 ){
-                    $this->addError($attribute, 'A patient already exists with this hospital number');
-                }
-            } elseif( !empty($this->hos_num)){
-                $this->addError($attribute, 'Not a valid Hospital Number');
-            }
-        }
     }
 
     /**
@@ -214,7 +213,7 @@ class Patient extends BaseActiveRecordVersioned
         $patient_dob_date = DateTime::createFromFormat('d-m-Y', $this->$attribute);
 
         if( !$patient_dob_date || !$format_check){
-            $this->addError($attribute, 'Wrong date format. Use dd/mm/yyyy');
+            $this->addError($attribute, 'Invalid date. Please enter the date in the format dd/mm/yyyy');
         }
     }
     public function deathDateFormatValidator($attribute, $params)
@@ -226,7 +225,7 @@ class Patient extends BaseActiveRecordVersioned
             $patient_dob_date = DateTime::createFromFormat('d-m-Y', $this->$attribute);
 
             if( !$patient_dob_date || !$format_check){
-                $this->addError($attribute, 'Wrong date format. Use dd/mm/yyyy');
+                $this->addError($attribute, 'Invalid date. Please enter the date in the format dd/mm/yyyy');
             }
         }
     }
@@ -244,14 +243,72 @@ class Patient extends BaseActiveRecordVersioned
             'date_of_death' => 'Date of Death',
             'gender' => 'Gender',
             'ethnic_group_id' => 'Ethnic Group',
-            'hos_num' => 'Hospital Number',
-            'nhs_num' => 'NHS Number',
+            'hos_num' => 'CERA Number',
+            'nhs_num' => 'Medicare Number',
             'deleted' => 'Is Deleted',
-            'nhs_num_status_id' => 'NHS Number Status',
-            'gp_id' => 'General Practitioner',
+            'nhs_num_status_id' => 'Medicare Number Status',
+            'gp_id' => 'Referring Practitioner',
             'practice_id' => 'Practice',
-            'is_local' => 'Is local patient ?'
+            'is_local' => 'Is local patient ?',
+            'patient_source' => 'Patient Source'
         );
+    }
+
+    /**
+     * Adds a new error to the PAS error array.
+     * @param $error
+     */
+    public function addPasError($error)
+    {
+        $this->_pas_errors[] = $error;
+    }
+
+    /**
+     * Returns the errors of the PAS error array.
+     * @param $attribute
+     * @return mixed|null
+     */
+    public function getPasErrors()
+    {
+        return $this->_pas_errors;
+    }
+
+    public function getScenarioSourceCode()
+    {
+        return array(
+            'referral' => self::PATIENT_SOURCE_REFERRAL,
+            'self_register' => self::PATIENT_SOURCE_SELF_REGISTER,
+            'other_register' => self::PATIENT_SOURCE_OTHER,
+        );
+    }
+
+    /**
+     * @return array List of sources for display in a drop-down list.
+     */
+    public function getSourcesList()
+    {
+        return array(
+            self::PATIENT_SOURCE_OTHER => 'Other',
+            self::PATIENT_SOURCE_REFERRAL => 'Referral',
+            self::PATIENT_SOURCE_SELF_REGISTER => 'Self-Registration',
+        );
+    }
+
+    /**
+     * @return string Human-readable patient source for read-only display.
+     */
+    public function getPatientSource()
+    {
+        switch ($this->patient_source)
+        {
+            case self::PATIENT_SOURCE_REFERRAL:
+                return 'Referral';
+            case self::PATIENT_SOURCE_SELF_REGISTER:
+                return 'Self-Registration';
+            case self::PATIENT_SOURCE_OTHER:
+                return 'Other';
+        }
+        return 'None';
     }
 
     public function search_nr($params)
@@ -260,6 +317,7 @@ class Patient extends BaseActiveRecordVersioned
         $criteria->join = 'JOIN contact ON contact_id = contact.id';
         $criteria->compare('LOWER(first_name)', strtolower($params['first_name']), false);
         $criteria->compare('LOWER(last_name)', strtolower($params['last_name']), false);
+        $criteria->compare('LOWER(maiden_name)', strtolower($params['maiden_name']), false);
         $criteria->compare('dob', $this->dob, false);
         $criteria->compare('gender', $this->gender, false);
         $criteria->compare('hos_num', $this->hos_num, false);
@@ -287,23 +345,33 @@ class Patient extends BaseActiveRecordVersioned
         $criteria = new CDbCriteria();
         $criteria->compare('t.id', $this->id);
         $criteria->join = 'JOIN contact ON contact_id = contact.id';
-        if (isset($params['first_name'])) {
-            $criteria->compare('contact.first_name', $params['first_name'], false);
+        if (isset($params['maiden_name'])) {
+            $criteria->compare('contact.maiden_name', $params['maiden_name'], false);
         }
-        if (isset($params['last_name'])) {
-            $criteria->compare('contact.last_name', $params['last_name'], false);
+        if (isset($params['patient_name'])) {
+            $name = explode(' ', $params['patient_name'], 2);
+            $name_len = sizeof($name);
+            if ($name_len == 1){
+                $criteria->compare('contact.first_name', $name[0], true);
+                $criteria->compare('contact.last_name', $name[0], true,'OR');
+            }else{
+                $criteria->compare('contact.first_name', $name[0], true);
+                $criteria->compare('contact.last_name', $name[1], true,'AND');
+            }
         }
-        if (strlen($this->nhs_num) == 10) {
-            $criteria->compare('nhs_num', $this->nhs_num, false);
-        } else {
-            $criteria->compare('hos_num', $this->hos_num, false);
+        if ($this->nhs_num || $this->hos_num) {
+            $criteria->compare('nhs_num', $this->nhs_num, true);
+            $criteria->compare('hos_num', $this->nhs_num, true,'OR');
+            $criteria->compare('nhs_num', $this->hos_num, true,'OR');
+            $criteria->compare('hos_num', $this->hos_num, true,'OR');
         }
         $criteria->compare('t.deleted', 0);
 
         $criteria->order = $params['sortBy'].' '.$params['sortDir'];
 
+        $results_from_event = array();
         if($this->use_pas == true){
-            Yii::app()->event->dispatch('patient_search_criteria', array('patient' => $this, 'criteria' => $criteria, 'params' => $params));
+            Yii::app()->event->dispatch('patient_search_criteria', array('results' => &$results_from_event,'patient' => $this, 'criteria' => $criteria, 'params' => $params));
         }
 
         $dataProvider = new CActiveDataProvider(get_class($this), array(
@@ -311,11 +379,16 @@ class Patient extends BaseActiveRecordVersioned
             'pagination' => array('pageSize' => $params['pageSize']),
         ));
 
+        $results = $dataProvider->getData();
+
+        $dataProvider->setData( array_merge($results, $results_from_event) );
+
         return $dataProvider;
     }
 
     public function beforeSave()
     {
+
         foreach (array('first_name', 'last_name', 'dob', 'title', 'primary_phone') as $property) {
             if ($randomised = $this->randomData($property)) {
                 $this->$property = $randomised;
@@ -349,7 +422,7 @@ class Patient extends BaseActiveRecordVersioned
             $this->is_deceased = 1;
         }
 
-        if( $this->scenario == 'manual'){
+        if (in_array($this->getScenario(), array('manual', 'referral', 'other_register', 'self_register'), true)) {
             $this->dob = str_replace('/', '-', $this->dob);
             $this->date_of_death = str_replace('/', '-', $this->date_of_death);
         }
@@ -416,12 +489,9 @@ class Patient extends BaseActiveRecordVersioned
                 }
 
                 // sort the remainder
-                function cmp($a, $b)
-                {
+                uasort($by_specialty, function($a, $b){
                     return strcasecmp($a['specialty'], $b['specialty']);
-                }
-
-                uasort($by_specialty, 'cmp');
+                });
             }
             // either flattens, or gets the remainder
             foreach ($by_specialty as $row) {
@@ -592,6 +662,19 @@ class Patient extends BaseActiveRecordVersioned
     }
 
     /**
+     * Wrapper function that relies on magic method behaviour to intercept calls for the no_allergies_date property
+
+     * @return null|datetime
+     */
+    public function get_no_allergies_date()
+    {
+        if ($api = $this->getApp()->moduleAPI->get('OphCiExamination')) {
+            return $api->getNoAllergiesDate($this);
+        }
+        return null;
+    }
+
+    /**
      * returns true if the allergy status of the patient is known (has allergies, or no known allergies) false otherwise.
      *
      * @return bool
@@ -610,6 +693,7 @@ class Patient extends BaseActiveRecordVersioned
     {
         return $this->no_risks_date || $this->risks;
     }
+
 
     /**
      * @return bool Is patient deceased?
@@ -717,38 +801,6 @@ class Patient extends BaseActiveRecordVersioned
         if ($api = Yii::app()->moduleAPI->get('OphDrPrescription')) {
             return $api->getPrescriptionItemsForPatient($this, $exclude);
         }
-    }
-
-    /**
-     * @param $medicationCriteria
-     *
-     * @return array
-     */
-    public function patientMedications($medicationCriteria)
-    {
-        $medicationCriteria->addCondition('patient_id = :id');
-        $medicationCriteria->params = array('id' => $this->id);
-        $medications = Medication::model()->findAll($medicationCriteria);
-
-        return $medications;
-    }
-
-    /**
-     * @param $medications
-     *
-     * @return mixed
-     */
-    public function prescriptionMedicationIds()
-    {
-        $medications = $this->patientMedications(new CDbCriteria());
-        $medicationsFromPrescriptions = array();
-        foreach ($medications as $medication) {
-            if ($medication->prescription_item_id) {
-                $medicationsFromPrescriptions[] = $medication->prescription_item_id;
-            }
-        }
-
-        return $medicationsFromPrescriptions;
     }
 
     /**
@@ -895,54 +947,6 @@ class Patient extends BaseActiveRecordVersioned
                 return 'his';
             default:
                 return 'their';
-        }
-    }
-
-    public function getEpd()
-    {
-        $episode = $this->getEpisodeForCurrentSubspecialty();
-
-        if ($episode && $disorder = $episode->diagnosis) {
-            if ($episode->eye) {
-                return $episode->eye->getAdjective().' '.strtolower($disorder->term);
-            } else {
-                return strtolower($disorder->term);
-            }
-        }
-    }
-
-    public function getEdl()
-    {
-        $episode = $this->getEpisodeForCurrentSubspecialty();
-
-        if ($episode && $disorder = $episode->diagnosis) {
-            if ($episode->eye->id == Eye::BOTH || $episode->eye->id == Eye::LEFT) {
-                return ucfirst(strtolower($disorder->term));
-            }
-
-            return 'No diagnosis';
-        }
-    }
-
-    public function getEdr()
-    {
-        $episode = $this->getEpisodeForCurrentSubspecialty();
-
-        if ($episode && $disorder = $episode->diagnosis) {
-            if ($episode->eye->id == Eye::BOTH || $episode->eye->id == Eye::RIGHT) {
-                return ucfirst(strtolower($disorder->term));
-            }
-
-            return 'No diagnosis';
-        }
-    }
-
-    public function getEps()
-    {
-        $episode = $this->getEpisodeForCurrentSubspecialty();
-
-        if ($episode && $eye = $episode->eye) {
-            return strtolower($eye->adjective);
         }
     }
 
@@ -1217,9 +1221,13 @@ class Patient extends BaseActiveRecordVersioned
      * marks the patient as having no family history.
      *
      * @throws Exception
+     * @deprecated - since 2.0
+     * @deprecated family history now contained within examination module
      */
     public function setNoFamilyHistory()
     {
+        trigger_error("Family History is now part of the Examination Module.", E_USER_DEPRECRATED);
+        
         if (!empty($this->familyHistory)) {
             throw new Exception('Unable to set no family history date as patient still has family history assigned');
         }
@@ -1326,7 +1334,7 @@ class Patient extends BaseActiveRecordVersioned
     }
 
     /**
-     * @return array|mixed|null
+     * @return SecondaryDiagnosis[]
      */
     public function getSystemicDiagnoses()
     {
@@ -1601,9 +1609,13 @@ class Patient extends BaseActiveRecordVersioned
      * @param $comments
      *
      * @throws Exception
+     * @deprecated since 2.0.0
+     * @deprecated family history is part of examination module now
      */
     public function addFamilyHistory($relative_id, $other_relative, $side_id, $condition_id, $other_condition, $comments)
     {
+        trigger_error("Family History is now part of the Examination Module.", E_USER_DEPRECRATED);
+
         $check_sql = 'patient_id=? and relative_id=? and side_id=? and condition_id=?';
         $params = array($this->id, $relative_id, $side_id, $condition_id);
         if ($other_relative) {
@@ -1662,22 +1674,6 @@ class Patient extends BaseActiveRecordVersioned
     public function getPrefix()
     {
         return 'Patient';
-    }
-
-    public function getEpc()
-    {
-        if ($episode = $this->getEpisodeForCurrentSubspecialty()) {
-            if ($user = $episode->firm->consultant) {
-                return $user->fullName;
-            }
-        }
-    }
-
-    public function getEpv()
-    {
-        if ($episode = $this->getEpisodeForCurrentSubspecialty()) {
-            return $episode->firm->serviceSubspecialtyAssignment->service->name;
-        }
     }
 
     /**
@@ -1749,38 +1745,25 @@ class Patient extends BaseActiveRecordVersioned
         return Event::model()->with('episode')->find($criteria);
     }
 
+    /**
+     * @return string
+     * @deprecated - since v2.0 - moved to operation note api.
+     */
     public function getLatestOperationNoteEventUniqueCode()
     {
-        $event_type = EventType::model()->find('class_name=?', array('OphTrOperationnote'));
-        $episode = $this->getEpisodeForCurrentSubspecialty();
-        $criteria = new CDbCriteria();
-        $criteria->addCondition('episode.patient_id = :pid');
-        $criteria->addCondition('t.event_type_id = :event_type_id');
-        $criteria->addCondition('t.episode_id = :episode_id');
-        $criteria->params = array(':pid' => $this->id, ':event_type_id' => $event_type->id, ':episode_id' => $episode->id);
-        $criteria->order = 't.event_date DESC, t.created_date DESC';
-        $criteria->limit = 1;
-        $event = Event::model()->with('episode')->find($criteria);
-        if (!empty($event)) {
-            return $this->getUniqueCodeForEvent($event->id);
-        } else {
-            return '';
+        if ($api = $this->getApp()->moduleAPI->get('OphTrOperationnote')) {
+            return $api->getLatestEventUniqueCode($this);
         }
     }
 
+    /**
+     * @param $id
+     * @return string
+     * @deprecated since v2.0 - moved to UniqueCodes model
+     */
     public function getUniqueCodeForEvent($id)
     {
-        if (!empty($id)) {
-            foreach (Yii::app()->db->createCommand()
-                                 ->select('uc.code')
-                                 ->from('unique_codes uc')
-                                 ->join('unique_codes_mapping ucm', 'uc.id = ucm.unique_code_id')
-                                 ->where("ucm.event_id = $id")->queryAll() as $row) {
-                return !empty($row['code']) ? $row['code'] : '';
-            }
-        }
-
-        return '';
+        return UniqueCodes::codeForEventId($id);
     }
 
     /**
@@ -1934,98 +1917,6 @@ class Patient extends BaseActiveRecordVersioned
     }
 
     /**
-     * Gets the current medications linked with items from the prescription events.
-     *
-     * @return array
-     */
-    public function get_medications()
-    {
-        $medicationCriteria = new CDbCriteria(array('order' => 'created_date DESC'));
-        $medicationCriteria->addCondition('end_date is null or end_date > NOW()');
-        $medications = $this->patientMedications($medicationCriteria);
-        $medicationsFromPrescriptions = $this->prescriptionMedicationIds();
-        $prescriptionItems = $this->prescriptionItems($medicationsFromPrescriptions);
-
-        if ($prescriptionItems) {
-            foreach ($prescriptionItems as $item) {
-                $medication = new Medication();
-                $medication->createFromPrescriptionItem($item);
-                if ($medication->isCurrentMedication()) {
-                    $medications[] = $medication;
-                }
-            }
-        }
-
-        usort($medications, array($this, 'sortMedications'));
-
-        return $medications;
-    }
-
-    /**
-     * Gets the previous medications linked with items from the prescription events.
-     *
-     * @return array
-     */
-    public function get_previous_medications()
-    {
-        $medicationCriteria = new CDbCriteria(array('order' => 'created_date DESC'));
-        $medicationCriteria->addCondition('end_date is not null and end_date < NOW()');
-        $medications = $this->patientMedications($medicationCriteria);
-        $medicationsFromPrescriptions = $this->prescriptionMedicationIds();
-        $prescriptionItems = $this->prescriptionItems($medicationsFromPrescriptions);
-
-        if ($prescriptionItems) {
-            foreach ($prescriptionItems as $item) {
-                $medication = new Medication();
-                $medication->createFromPrescriptionItem($item);
-                if ($medication->isPreviousMedication()) {
-                    $medications[] = $medication;
-                }
-            }
-        }
-
-        usort($medications, array($this, 'sortMedications'));
-
-        return $medications;
-    }
-
-    /**
-     * Sort the medications by start date.
-     *
-     * @param $item1
-     * @param $item2
-     *
-     * @return bool
-     */
-    protected function sortMedications($item1, $item2)
-    {
-        return $item1->start_date > $item2->start_date;
-    }
-
-    /**
-     * @param $medicationList
-     * @param $prescription
-     *
-     * @return mixed
-     */
-    protected function mergeItemToMedications($medicationList, $prescription)
-    {
-        foreach ($medicationList as $medication) {
-            $currentMedication = $medication->isCurrentMedication();
-            if ($currentMedication && $medication->matches($prescription)) {
-                $medication->start_date = ($medication->start_date < $prescription->start_date) ? $medication->start_date : $prescription->start_date;
-                $endDate = $prescription->stopDateFromDuration()->format('Y-m-d');
-                if ($medication->stop_date && $medication->stop_date < $endDate) {
-                    $medication->stop_date = $endDate;
-                }
-            } else {
-            }
-        }
-
-        return $medicationList;
-    }
-
-    /**
      * Get the episode ID of the patient's cataract if it exists.
      *
      * @return mixed
@@ -2045,4 +1936,163 @@ class Patient extends BaseActiveRecordVersioned
 
         return $patient->episodes[0]->id;
     }
+
+    public function dateOfBirthRangeValidator($attribute, $params)
+    {
+        if ($this->hasErrors('dob')) {
+            return;
+        }
+
+        $currentDate = new DateTime(date('j M Y'));
+        $date_of_birth = new DateTime($this->dob);
+
+        if ($date_of_birth > $currentDate || $this->getAge() > 100) {
+            $this->addError($attribute,'Invalid date. Value does not fall within the expected range.');
+        }
+
+    }
+
+    /**
+     * Find all patients with the same date of birth and similar-sounding names.
+     * @param $firstName string First name.
+     * @param $last_name string Last name.
+     * @param $dob string Date of Birth (DD/MM/YYYY).
+     * @param $id int ID of the current patient record.
+     * @return array The list of patients who have similar names and the same date of birth, or the invalid patient model.
+     */
+    public static function findDuplicates($firstName, $last_name, $dob, $id)
+    {
+        $sql = '
+        SELECT p.*
+        FROM patient p
+        JOIN contact c
+          ON c.id = p.contact_id
+        WHERE p.dob = :dob
+          AND (SOUNDEX(c.first_name) = SOUNDEX(:first_name) OR levenshtein_ratio(c.first_name, :first_name) >= 60)
+          AND (SOUNDEX(c.last_name) = SOUNDEX(:last_name) OR levenshtein_ratio(c.last_name, :last_name) >= 60)
+          AND (:id IS NULL OR p.id != :id)
+        ORDER BY c.first_name, c.last_name
+        ';
+
+        $mysqlDob = Helper::convertNHS2MySQL(date('d M Y', strtotime(str_replace('/', '-', $dob))));
+
+        $validPatient = new Patient('manual');
+        $validContact = new Contact('manual');
+        $validContact->first_name = $firstName;
+        $validContact->last_name = $last_name;
+        $validPatient->dob = $dob;
+
+        if ($validPatient->validate(array('dob')) && $validContact->validate(array('first_name', 'last_name'))) {
+            return Patient::model()->findAllBySql($sql, array(':dob' => $mysqlDob, ':first_name' => $firstName, ':last_name' => $last_name, ':id' => $id));
+        }
+
+        return array('error' => array_merge($validPatient->getErrors(), $validContact->getErrors()));
+    }
+
+    /**
+     * Returns an array of summarised patient Systemic diagnoses
+     * @return array
+     */
+    public function getSystemicDiagnosesSummary()
+    {
+        return array_map(function($diagnosis) {
+            return $diagnosis->systemicDescription;
+        }, $this->systemicDiagnoses);
+    }
+
+    /**
+     * Returns an array of summarised patient Ophthalmic diagnoses including the principal diagnoses from Episodes.
+     *
+     * @return array
+     */
+    public function getOphthalmicDiagnosesSummary()
+    {
+        $principals = array();
+        foreach ($this->episodes as $ep) {
+            $d = $ep->diagnosis;
+            if ($d && $d->specialty && $d->specialty->code == 130) {
+                $principals[] = ($ep->eye ? $ep->eye->adjective . ' ' : '') . $d->term;
+            }
+        }
+
+        // filter down to unique description to avoid duplicate diagnoses
+        // Note this will not combine L/R into bilateral, or filter a L||R
+        // clashing with bilateral
+        return array_unique(
+            array_merge(
+                $principals,
+                array_map(function($diagnosis) {
+                    return $diagnosis->ophthalmicDescription;
+                }, $this->ophthalmicDiagnoses)
+            )
+        );
+    }
+
+    /**
+     * Returns a summarised array of patient allergy status
+     * @return array An array containing a summarised allergy status or assigned allergy names
+     */
+    public function getAllergiesSummary()
+    {
+        if (!$this->hasAllergyStatus()) {
+            return array('Patient allergy status is unknown');
+        }
+        if ($this->no_allergies_date) {
+            return array('Patient has no known allergies');
+        }
+        return array_map(function($allergy) {
+            return $allergy->name;
+        }, $this->allergies);
+    }
+
+    /**
+     * @return string
+     */
+    public function getCviSummary()
+    {
+        if ($cvi_api = Yii::app()->moduleAPI->get('OphCoCvi')) {
+            return $cvi_api->getSummaryText($this);
+        }
+        else {
+            return $this->getOPHInfo()->cvi_status->name;
+        }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function get_socialhistory()
+    {
+        return OEModule\OphCiExamination\widgets\SocialHistory::latestForPatient($this);
+    }
+
+
+    /**
+     * Builds a sorted list of operations carried out on the patient either historically or across relevant events.
+     *
+     * @return array
+     */
+//    public function getOperationsSummary()
+//    {
+//        $summary = array();
+//        if ($op_api = Yii::app()->moduleAPI->get('OphTrOperationnote')) {
+//            $summary = array_merge($summary, $op_api->getOperationsSummaryData($this));
+//        }
+//
+//        foreach ($this->previousOperations as $prev) {
+//            $summary[] = array(
+//                'date' => $prev->date,
+//                'description' => $prev->getSummaryDescription()
+//            );
+//        }
+//
+//        // date descending sort
+//        uasort($summary, function($a , $b) {
+//            return $a['date'] >= $b['date'] ? -1 : 1;
+//        });
+//
+//        return array_map(
+//            function($item) { return $item['description'];},
+//            $summary);
+//    }
 }

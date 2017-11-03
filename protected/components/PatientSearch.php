@@ -2,31 +2,32 @@
 /**
  * OpenEyes.
  *
- * (C) Moorfields Eye Hospital NHS Foundation Trust, 2008-2011
- * (C) OpenEyes Foundation, 2011-2013
+ * 
+ * Copyright OpenEyes Foundation, 2017
+ *
  * This file is part of OpenEyes.
- * OpenEyes is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- * OpenEyes is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with OpenEyes in a file titled COPYING. If not, see <http://www.gnu.org/licenses/>.
+ * OpenEyes is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * OpenEyes is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * You should have received a copy of the GNU Affero General Public License along with OpenEyes in a file titled COPYING. If not, see <http://www.gnu.org/licenses/>.
  *
  * @link http://www.openeyes.org.uk
  *
  * @author OpenEyes <info@openeyes.org.uk>
- * @copyright Copyright (c) 2008-2011, Moorfields Eye Hospital NHS Foundation Trust
- * @copyright Copyright (c) 2011-2013, OpenEyes Foundation
- * @license http://www.gnu.org/licenses/gpl-3.0.html The GNU General Public License V3.0
+ * @copyright Copyright 2017, OpenEyes Foundation
+ * @license http://www.gnu.org/licenses/agpl-3.0.html The GNU Affero General Public License V3.0
  */
 class PatientSearch
 {
     // NHS number (assume 10 digit number is an NHS number)
     const NHS_NUMBER_REGEX_1 = '/^(N|NHS)\s*[:;]\s*([0-9\- ]+)$/i';
-    const NHS_NUMBER_REGEX_2 = '/^([0-9]{3}[- ]?[0-9]{3}[- ]?[0-9]{4})$/i';
-
+    const NHS_NUMBER_REGEX_2 = '/^([0-9]{1,}[- ]?[0-9]{1,}[- ]?[0-9]{1,})$/i';
+    
     // Hospital number (assume a < 10 digit number is a hosnum)
-    const HOSPITAL_NUMBER_REGEX = '/^(H|Hosnum)\s*[:;]\s*([0-9\-]+)$/i';
+    const HOSPITAL_NUMBER_REGEX = '/^(H|Hosnum)\s*[:;]\s*([0-9\- ]+)$/i';
 
     // Patient name
     const PATIENT_NAME_REGEX = '/^(?:P(?:atient)?[:;\s]+)?([\a-zA-Z-]+[ ,]?[\a-zA-Z-]*)$/';
+
 
     private $searchTerms = array();
 
@@ -58,24 +59,19 @@ class PatientSearch
         $search_terms = array(
             'hos_num' => null,
             'nhs_num' => null,
-            'first_name' => null,
-            'last_name' => null,
+            'patient_name' => null,
         );
 
         // NHS number
         if ($nhs = $this->getNHSnumber($term)) {
             $search_terms['nhs_num'] = $nhs;
-
-        // Hospital number (assume a < 10 digit number is a hosnum)
+        // Hospital number
         } elseif ($hos_num = $this->getHospitalNumber($term)) {
             $search_terms['hos_num'] = $hos_num;
-
         // Patient name
         } elseif ($name = $this->getPatientName($term)) {
-            $search_terms['first_name'] = trim($name['first_name']);
-            $search_terms['last_name'] = trim($name['last_name']);
+            $search_terms['patient_name'] = trim($name['patient_name']);
         }
-
         $this->searchTerms = CHtml::encodeArray($search_terms);
 
         return $this->searchTerms;
@@ -135,8 +131,9 @@ class PatientSearch
             'sortBy' => $sortBy,
             'sortDir' => $sortDir,
             'currentPage' => $currentPage,
-            'first_name' => CHtml::decode($search_terms['first_name']),
-            'last_name' => CHtml::decode($search_terms['last_name']),
+            'hos_num' => CHtml::decode($search_terms['hos_num']),
+            'nhs_num' => CHtml::decode($search_terms['nhs_num']),
+            'patient_name'=>CHtml::decode($search_terms['patient_name']),
         );
 
         if( $this->use_pas == false ){
@@ -180,7 +177,7 @@ class PatientSearch
         $result = null;
         if (preg_match(self::HOSPITAL_NUMBER_REGEX, $term, $matches) || preg_match(Yii::app()->params['hos_num_regex'], $term, $matches)) {
             $hosnum = (isset($matches[2])) ? $matches[2] : $matches[1];
-            $result = sprintf(Yii::app()->params['pad_hos_num'], $hosnum);
+            $result = $hosnum;
         }
 
         return $result;
@@ -196,20 +193,33 @@ class PatientSearch
         $result = null;
         if (preg_match(self::PATIENT_NAME_REGEX, $term, $m)) {
             $name = $m[1];
-
             if (strpos($name, ',') !== false) {
                 list($surname, $firstname) = explode(',', $name, 2);
-            } elseif (strpos($name, ' ')) {
-                list($firstname, $surname) = explode(' ', $name, 2);
+                $patientname = $firstname.' '.$surname;
             } else {
-                $surname = $name;
-                $firstname = '';
+                $patientname = $name;
             }
+            $result['patient_name'] = trim($patientname);
+        }
+        return $result;
+    }
 
-            $result['first_name'] = trim($firstname);
-            $result['last_name'] = trim($surname);
+    /**
+     * Fetch contact name and title from search term
+     */
+    public function getContactTitleName($term)
+    {
+        $contacts_result = Contact::model()->findAll(array('select'=>'title', 'distinct'=>true,));
+        $titles = array();
+        foreach ($contacts_result as $contact) {
+            array_push($titles, strtolower($contact['title']));
         }
 
+        $terms = explode(' ', $term, 3);
+        $result = array('contact_name'=>array());
+
+        $result['title'] = implode(array_intersect($terms, $titles));
+        $result['contact_name'] = array_values(array_diff($terms, $titles));
         return $result;
     }
 

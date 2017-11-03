@@ -5,16 +5,15 @@
  * (C) Moorfields Eye Hospital NHS Foundation Trust, 2008-2011
  * (C) OpenEyes Foundation, 2011-2013
  * This file is part of OpenEyes.
- * OpenEyes is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- * OpenEyes is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with OpenEyes in a file titled COPYING. If not, see <http://www.gnu.org/licenses/>.
+ * OpenEyes is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * OpenEyes is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * You should have received a copy of the GNU Affero General Public License along with OpenEyes in a file titled COPYING. If not, see <http://www.gnu.org/licenses/>.
  *
  * @link http://www.openeyes.org.uk
  *
  * @author OpenEyes <info@openeyes.org.uk>
- * @copyright Copyright (c) 2008-2011, Moorfields Eye Hospital NHS Foundation Trust
  * @copyright Copyright (c) 2011-2013, OpenEyes Foundation
- * @license http://www.gnu.org/licenses/gpl-3.0.html The GNU General Public License V3.0
+ * @license http://www.gnu.org/licenses/agpl-3.0.html The GNU Affero General Public License V3.0
  */
 
 /**
@@ -78,7 +77,8 @@ class User extends BaseActiveRecordVersioned
             array('username', 'unique', 'className' => 'User', 'attributeName' => 'username'),
             array('id, username, first_name, last_name, email, active, global_firm_rights', 'safe', 'on' => 'search'),
             array(
-                'username, first_name, last_name, email, active, global_firm_rights, is_doctor, title, qualifications, role, salt, password, is_clinical, is_consultant, is_surgeon,
+                'username, first_name, last_name, email, active, global_firm_rights, is_doctor, title, qualifications, 
+                 role, salt, password, is_clinical, is_consultant, is_surgeon,
                  has_selected_firms,doctor_grade_id, registration_code, signature_file_id',
                 'safe',
             ),
@@ -87,7 +87,7 @@ class User extends BaseActiveRecordVersioned
         if (Yii::app()->params['auth_source'] == 'BASIC') {
             $user = Yii::app()->request->getPost('User');
 
-            if (isset($user['is_doctor']) && $user['is_doctor']) {
+            if (isset($user['is_surgeon']) && $user['is_surgeon'] == 1) {
                 return array_merge(
                     $commonRules,
                     array(
@@ -97,10 +97,7 @@ class User extends BaseActiveRecordVersioned
                             'pattern' => '/^[\w|\.\-_\+@]+$/',
                             'message' => 'Only letters, numbers and underscores are allowed for usernames.',
                         ),
-                        array(
-                            'username, email, first_name, last_name, active, global_firm_rights, doctor_grade_id',
-                            'required',
-                        ),
+                        array('username, email, first_name, last_name, active, global_firm_rights,doctor_grade_id,registration_code ','required',),
                         array('username, password, first_name, last_name', 'length', 'max' => 40),
                         array(
                             'password',
@@ -115,6 +112,7 @@ class User extends BaseActiveRecordVersioned
                         array('password_repeat', 'safe'),
                     )
                 );
+
             } else {
                 return array_merge(
                     $commonRules,
@@ -141,6 +139,7 @@ class User extends BaseActiveRecordVersioned
                     )
                 );
             }
+
         } elseif (Yii::app()->params['auth_source'] == 'LDAP') {
             return array_merge(
                 $commonRules,
@@ -480,6 +479,22 @@ class User extends BaseActiveRecordVersioned
             $this->addError('password', 'Password is required');
         }
 
+        if (!$this->global_firm_rights){
+            $request = Yii::app()->getRequest();
+            $firms = null;
+            if ($request->getIsPostRequest()){
+                $user = $request->getPost('User');
+                Yii::log(var_export($user, true));
+            }
+            if(isset($user['firms'])){
+                $firms = $user['firms'];
+            }
+            if($firms === null || $firms === ''){
+                $this->addError('global_firm_rights',
+                    'When no global firm rights is set, a firm must be selected');
+            }
+        }
+
         return parent::beforeValidate();
     }
 
@@ -613,6 +628,8 @@ class User extends BaseActiveRecordVersioned
                 throw new CDbException('Unable to save firm assignment');
             }
         }
+        //set the has_selected_firms to be true
+        User::updateByPk($this->id, array("has_selected_firms"=>1));
         $transaction->commit();
     }
 

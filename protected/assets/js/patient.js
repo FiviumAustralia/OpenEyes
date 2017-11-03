@@ -1,9 +1,23 @@
 function addItem(wrapper_id, ui){
     var $wrapper = $('#' + wrapper_id);
-    
     $wrapper.find('span.name').text(ui.item.label);
     $wrapper.show();
-    $wrapper.find('.hidden_id').val(ui.item.value);
+    $wrapper.find('.hidden_id').val(ui.item.id);
+}
+
+function addGpItem(wrapper_id, ui){
+    var $wrapper = $('#' + wrapper_id);
+    var JsonObj = JSON.parse(ui);
+    $wrapper.find('span.name').text(JsonObj.label);
+    $wrapper.show();
+    $wrapper.find('.hidden_id').val(JsonObj.id);
+}
+
+function addReferredToItem(wrapper_id, ui){
+  var $wrapper = $('#' + wrapper_id);
+  $wrapper.find('span.name').text(ui.item.label);
+  $wrapper.show();
+  $wrapper.find('.hidden_id').val(ui.item.id);
 }
 
 function removeSelectedGP(){
@@ -19,9 +33,14 @@ function removeSelectedPractice(){
     $('#Patient_practice_id').val('');
         
 }
+function removeSelectedReferredto(){
+  $('#no_referred_to_result').hide();
+  $('.selected_referred_to span.name').text('');
+  $('#selected_referred_to_wrapper').hide();
+}
 
 $(document).ready(function(){
-    
+
     $('#patient-form').on('keyup', '#Patient_nhs_num', function(){
         var selector = $(this).data('child_row');
         $(selector).hide();
@@ -46,6 +65,10 @@ $(document).ready(function(){
     $('#selected_practice_wrapper').on('click', '.remove', function(){
         removeSelectedPractice();
     });
+
+  $('#selected_referred_to_wrapper').on('click', '.remove', function(){
+    removeSelectedReferredto();
+  });
     
     
 });

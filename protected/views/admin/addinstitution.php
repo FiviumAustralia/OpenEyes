@@ -5,16 +5,15 @@
  * (C) Moorfields Eye Hospital NHS Foundation Trust, 2008-2011
  * (C) OpenEyes Foundation, 2011-2012
  * This file is part of OpenEyes.
- * OpenEyes is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- * OpenEyes is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with OpenEyes in a file titled COPYING. If not, see <http://www.gnu.org/licenses/>.
+ * OpenEyes is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * OpenEyes is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * You should have received a copy of the GNU Affero General Public License along with OpenEyes in a file titled COPYING. If not, see <http://www.gnu.org/licenses/>.
  *
  * @link http://www.openeyes.org.uk
  *
  * @author OpenEyes <info@openeyes.org.uk>
- * @copyright Copyright (c) 2008-2011, Moorfields Eye Hospital NHS Foundation Trust
  * @copyright Copyright (c) 2011-2012, OpenEyes Foundation
- * @license http://www.gnu.org/licenses/gpl-3.0.html The GNU General Public License V3.0
+ * @license http://www.gnu.org/licenses/agpl-3.0.html The GNU Affero General Public License V3.0
  */
 ?>
 <div class="box admin">
@@ -39,7 +38,9 @@
 			<?php echo $form->textField($address, 'city', array('autocomplete' => Yii::app()->params['html_autocomplete']))?>
 			<?php echo $form->textField($address, 'county', array('autocomplete' => Yii::app()->params['html_autocomplete']))?>
 			<?php echo $form->textField($address, 'postcode', array('autocomplete' => Yii::app()->params['html_autocomplete']))?>
-			<?php echo $form->dropDownList($address, 'country_id', 'Country')?>
+			<?php $countryName = 'Australia';
+			      $country = Country::model()->find("name='".$countryName."'");
+      echo $form->dropDownList($address, 'country_id', 'Country', array('options'=>array($country['id']=>array('selected'=>true))))?>
 		</fieldset>
 		<?php echo $form->formActions(array('cancel-uri' => '/admin/institutions'));?>
 	<?php $this->endWidget()?>

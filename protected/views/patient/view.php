@@ -92,6 +92,7 @@ $warnings = $this->patient->getWarnings($clinical);
 				</section>
 			<?php endif ?>
 			<?php $this->renderPartial('_patient_details')?>
+      <?php $this->renderModulePartials('patient_summary_column1_before_contact')?>
 			<?php $this->renderPartial('_patient_contact_details')?>
 			<?php $this->renderPartial('_patient_gp')?>
 			<?php $this->renderPartial('_patient_commissioningbodies')?>

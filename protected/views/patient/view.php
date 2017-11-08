@@ -92,6 +92,14 @@ $warnings = $this->patient->getWarnings($clinical);
 				</section>
 			<?php endif ?>
 			<?php $this->renderPartial('_patient_details')?>
+      <?php
+        $api = Yii::app()->moduleAPI->get('OETrial');
+        $viewFile = $api->findViewFile('patientSummary', '_patient_trials');
+        $this->renderFile($viewFile, array(
+            'patient' => $this->patient,
+            'api' => $api,
+        ));
+      ?>
 			<?php $this->renderPartial('_patient_contact_details')?>
 			<?php $this->renderPartial('_patient_gp')?>
 			<?php $this->renderPartial('_patient_commissioningbodies')?>

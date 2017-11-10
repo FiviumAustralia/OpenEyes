@@ -36,6 +36,11 @@ class GpController extends BaseController
                 'roles' => array('TaskCreateGp'),
             ),
             array(
+                'allow', // allow anyone to search for contact labels
+                'actions' => array('contactLabelList'),
+                'users' => array('*')
+            ),
+            array(
                 'deny',  // deny all other users
                 'users' => array('*'),
             ),
@@ -60,9 +65,9 @@ class GpController extends BaseController
      */
     public function actionCreate($context = null)
     {
+        Yii::app()->assetManager->RegisterScriptFile('js/Gp.js');
         $gp = new Gp();
         $contact = new Contact('manage_gp');
-
 
         if (isset($_POST['Contact'])) {
             $contact->attributes = $_POST['Contact'];
@@ -87,6 +92,7 @@ class GpController extends BaseController
     {
         $action = $gp->isNewRecord ? 'add' : 'edit';
         $transaction = Yii::app()->db->beginTransaction();
+
         try {
             if ($contact->save()) {
                 // No need to re-set these values if they already exist.
@@ -138,6 +144,7 @@ class GpController extends BaseController
      */
     public function actionUpdate($id)
     {
+        Yii::app()->assetManager->RegisterScriptFile('js/Gp.js');
         $model = $this->loadModel($id);
         $contact = $model->contact;
         $contact->setScenario('manage_gp');
@@ -145,7 +152,12 @@ class GpController extends BaseController
         $this->performAjaxValidation($contact);
 
         if (isset($_POST['Contact'])) {
+
             $contact->attributes = $_POST['Contact'];
+            if ($_POST['Contact']['contact_label_id'] == -1)
+            {
+                $contact->contact_label_id = null;
+            }
 
             list($contact, $model) = $this->performGpSave($contact, $model);
         }
@@ -153,6 +165,26 @@ class GpController extends BaseController
         $this->render('update', array(
             'model' => $contact,
         ));
+    }
+
+    public function actionContactLabelList($term)
+    {
+        $criteria = new CDbCriteria;
+        $criteria->addSearchCondition('LOWER(name)', strtolower($term), true, 'OR');
+        $labels = ContactLabel::model()->findAll($criteria);
+
+        $output = array();
+        foreach($labels as $label){
+            $output[] = array(
+                'label' => $label->name,
+                'value' => $label->name,
+                'id' => $label->id
+            );
+        }
+
+        echo CJSON::encode($output);
+
+        Yii::app()->end();
     }
 
     /**

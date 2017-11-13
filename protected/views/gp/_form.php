@@ -97,7 +97,7 @@
           <span class="name">
             <?php echo isset($model->label) ? $model->label->name : ''; ?>
           </span>
-          <a href="javascript:void(0)" class="remove right">remove</a>
+          <a href="javascript:void(0)" class="remove right" style="color:blue">remove</a>
         </div>
           <?php echo CHtml::hiddenField('Contact[contact_label_id]'
               , $model->contact_label_id, array('class' => 'hidden_id')); ?>

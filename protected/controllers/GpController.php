@@ -168,6 +168,10 @@ class GpController extends BaseController
         ));
     }
 
+    /**
+     * List all contact labels that contain the $term
+     * @param string $term what to search on
+     */
     public function actionContactLabelList($term)
     {
         $criteria = new CDbCriteria;

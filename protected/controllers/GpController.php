@@ -84,6 +84,7 @@ class GpController extends BaseController
         } else {
             $this->render('create', array(
                 'model' => $contact,
+                'context' => null
             ));
         }
     }

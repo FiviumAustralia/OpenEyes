@@ -76,7 +76,7 @@ class PatientNumberParameter extends CaseSearchParameter implements DBProviderIn
      * @return string The constructed query string.
      * @throws CHttpException
      */
-    public function query($searchProvider)
+    public function query()
     {
         $op = '=';
         /*

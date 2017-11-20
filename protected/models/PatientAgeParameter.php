@@ -140,11 +140,10 @@ class PatientAgeParameter extends CaseSearchParameter implements DBProviderInter
 
     /**
      * Generate the SQL query for patient age.
-     * @param $searchProvider DBProvider The search provider building the query.
-     * @return null|string The query string for use by the search provider, or null if not implemented for the specified search provider.
-     * @throws CHttpException
+     * @return array The query string for use by the search provider, or null if not implemented for the specified search provider.
+     * @throws CHttpException In case of invalid operator
      */
-    public function query($searchProvider)
+    public function query()
     {
         switch ($this->operation) {
             case 'BETWEEN':
@@ -163,10 +162,16 @@ class PatientAgeParameter extends CaseSearchParameter implements DBProviderInter
 
         $queryStr = 'SELECT id FROM patient WHERE TIMESTAMPDIFF(YEAR, dob, IFNULL(date_of_death, CURDATE()))';
         if ($op === 'BETWEEN') {
-            return "$queryStr BETWEEN :p_a_min_$this->id AND :p_a_max_$this->id";
+          $queryStr = "$queryStr BETWEEN :p_a_min_$this->id AND :p_a_max_$this->id";
+        } else {
+          $queryStr = "$queryStr $op :p_a_value_$this->id";
         }
 
-        return "$queryStr $op :p_a_value_$this->id";
+
+        $query = Yii::app()->db->createCommand($queryStr);
+        $this->bindParams($query, $this->bindValues());
+
+        return ArrayHelper::array_values_multi($query->queryAll());
     }
 
     /**
@@ -176,12 +181,9 @@ class PatientAgeParameter extends CaseSearchParameter implements DBProviderInter
     {
         $bindValues = array();
 
-        if ($this->operation === 'BETWEEN') {
-            $bindValues["p_a_min_$this->id"] = (int)$this->minValue;
-            $bindValues["p_a_max_$this->id"] = (int)$this->maxValue;
-        } else {
-            $bindValues["p_a_value_$this->id"] = (int)$this->textValue;
-        }
+        $bindValues["p_a_min_$this->id"] = (int)$this->minValue;
+        $bindValues["p_a_max_$this->id"] = (int)$this->maxValue;
+        $bindValues["p_a_value_$this->id"] = (int)$this->textValue;
 
         return $bindValues;
     }

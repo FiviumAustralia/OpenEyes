@@ -59,23 +59,28 @@ class PatientDeceasedParameter extends CaseSearchParameter implements DBProvider
     /**
      * Generate a SQL fragment representing the subquery of a FROM condition.
      * @param $searchProvider DBProvider The search provider. This is used to determine whether or not the search provider is using SQL syntax.
-     * @return string The constructed query string.
+     * @return array patient ids
      * @throws CHttpException
      */
-    public function query($searchProvider)
+    public function query()
     {
+        $queryStr = null;
         switch ($this->operation)
         {
             case '0':
-                return 'SELECT id FROM patient WHERE NOT(is_deceased)';
+                $queryStr = 'SELECT id FROM patient WHERE NOT(is_deceased)';
                 break;
             case '1':
-                return 'SELECT id FROM patient';
+                $queryStr = 'SELECT id FROM patient';
                 break;
             default:
                 throw new CHttpException(400, "Invalid value specified: $this->operation");
                 break;
         }
+
+        $query = Yii::app()->db->createCommand($queryStr);
+
+        return ArrayHelper::array_values_multi($query->queryAll());
     }
 
     /**

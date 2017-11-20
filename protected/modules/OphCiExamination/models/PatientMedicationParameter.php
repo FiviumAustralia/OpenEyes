@@ -93,7 +93,7 @@ class PatientMedicationParameter extends CaseSearchParameter implements DBProvid
      * @return string The constructed query string.
      * @throws CHttpException
      */
-    public function query($searchProvider)
+    public function query()
     {
         switch ($this->operation) {
             case 'LIKE':

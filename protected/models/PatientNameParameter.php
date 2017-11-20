@@ -75,7 +75,7 @@ class PatientNameParameter extends CaseSearchParameter implements DBProviderInte
      * @return string The constructed query string.
      * @throws CHttpException
      */
-    public function query($searchProvider)
+    public function query()
     {
         $op = 'LIKE';
         /*

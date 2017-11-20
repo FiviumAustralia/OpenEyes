@@ -61,4 +61,19 @@ abstract class CaseSearchParameter extends CFormModel
     {
         return null;
     }
+
+    /**
+     * Use this to bind parameters into a command, this ignores binds that don't actually appear in the query string
+     * @param $query_command CDbCommand the command you want to bind in values for
+     * @param $binds array id/value pairs
+     */
+    public function bindParams(&$query_command, $binds)
+    {
+        $queryStr = $query_command->getText();
+        foreach ($binds as $id => $value){
+            if(strpos($queryStr, $id) !== false) {
+                $query_command->bindValue($id, $value);
+            }
+        }
+    }
 }

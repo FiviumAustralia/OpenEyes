@@ -10,7 +10,7 @@ interface DBProviderInterface
      * @param $searchProvider DBProvider The database search provider.
      * @return string The constructed query string.
      */
-    public function query($searchProvider);
+    public function query();
 
     /**
      * Get the list of bind values for use in the SQL query.

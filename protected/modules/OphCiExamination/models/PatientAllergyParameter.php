@@ -92,7 +92,7 @@ class PatientAllergyParameter extends CaseSearchParameter implements DBProviderI
      * @return string The constructed query string.
      * @throws CHttpException
      */
-    public function query($searchProvider)
+    public function query()
     {
         $query = "SELECT DISTINCT p.id 
 FROM patient p 

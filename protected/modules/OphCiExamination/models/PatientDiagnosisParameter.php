@@ -127,7 +127,7 @@ class PatientDiagnosisParameter extends CaseSearchParameter implements DBProvide
      * @return string The constructed query string.
      * @throws CHttpException
      */
-    public function query($searchProvider)
+    public function query()
     {
         $query = "
 SELECT episode.patient_id

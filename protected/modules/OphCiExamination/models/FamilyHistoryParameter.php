@@ -114,31 +114,34 @@ class FamilyHistoryParameter extends CaseSearchParameter implements DBProviderIn
     public function getIds()
     {
         $queryStr = "
-SELECT DISTINCT p.id 
-FROM patient p 
-JOIN patient_family_history fh
-  ON fh.patient_id = p.id
-WHERE (:f_h_side_$this->id IS NULL OR fh.side_id = :f_h_side_$this->id)
-  AND (:f_h_relative_$this->id IS NULL OR fh.relative_id = :f_h_relative_$this->id)
-  AND (:f_h_condition_$this->id = :f_h_condition_$this->id)";
+          SELECT DISTINCT p.id 
+          FROM patient p 
+          JOIN patient_family_history fh
+            ON fh.patient_id = p.id
+          WHERE (:f_h_side_$this->id IS NULL OR fh.side_id = :f_h_side_$this->id)
+            AND (:f_h_relative_$this->id IS NULL OR fh.relative_id = :f_h_relative_$this->id)
+            AND (:f_h_condition_$this->id = :f_h_condition_$this->id)";
         switch ($this->operation) {
             case '=':
                 // Do nothing.
                 break;
             case '!=':
                 $queryStr = "
-SELECT id
-FROM patient
-WHERE id NOT IN (
-  $queryStr
-)";
+                    SELECT id
+                    FROM patient
+                    WHERE id NOT IN (
+                      $queryStr
+                    )";
                 break;
             default:
                 throw new CHttpException(400, 'Invalid operator specified.');
                 break;
         }
 
-        return $queryStr;
+        $query = Yii::app()->db->createCommand($queryStr);
+        $this->bindParams($query, $this->bindValues());
+
+        return ArrayHelper::array_values_multi($query->queryAll());
     }
 
     /**

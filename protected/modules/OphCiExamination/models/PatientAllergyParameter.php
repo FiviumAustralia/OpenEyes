@@ -103,7 +103,6 @@ class PatientAllergyParameter extends CaseSearchParameter implements DBProviderI
             WHERE a.name = :p_al_textValue_$this->id";
         switch ($this->operation) {
             case '=':
-//                return $queryStr;
                 break;
             case '!=':
                 $queryStr = "SELECT DISTINCT p1.id

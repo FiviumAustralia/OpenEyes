@@ -129,57 +129,58 @@ class PatientDiagnosisParameter extends CaseSearchParameter implements DBProvide
      */
     public function getIds()
     {
-        $query = "
-SELECT episode.patient_id
-FROM ophciexamination_diagnosis diagnosis
-JOIN et_ophciexamination_diagnoses diagnoses ON diagnoses.id = diagnosis.element_diagnoses_id
-JOIN event ON event.id = diagnoses.event_id
-JOIN episode ON episode.id = event.episode_id
-JOIN disorder ON diagnosis.disorder_id = disorder.id
-WHERE LOWER(disorder.term) LIKE LOWER(:p_d_value_$this->id)
-AND (:p_d_firm_$this->id IS NULL OR event.firm_id = :p_d_firm_$this->id)
-AND (:p_d_only_latest_event_$this->id = 0 OR
-  NOT EXISTS (
-    SELECT true
-    FROM et_ophciexamination_diagnoses later_diagnoses
-    JOIN event later_event ON later_event.id = later_diagnoses.event_id
-    JOIN episode later_episode ON later_episode.id = later_event.episode_id
-    WHERE later_episode.patient_id = episode.patient_id
-    AND later_event.event_date > event.event_date OR (later_event.event_date = event.event_date AND later_event.created_date > event.created_date)
-  )
-)
-
-UNION
-
-SELECT episode.patient_id
-FROM ophciexamination_systemic_diagnoses_diagnosis diagnosis
-JOIN et_ophciexamination_systemic_diagnoses diagnoses ON diagnoses.id = diagnosis.element_id
-JOIN event ON event.id = diagnoses.event_id
-JOIN episode ON episode.id = event.episode_id
-JOIN disorder ON diagnosis.disorder_id = disorder.id
-WHERE LOWER(disorder.term) LIKE LOWER(:p_d_value_$this->id)
-AND (:p_d_firm_$this->id IS NULL OR event.firm_id = :p_d_firm_$this->id)
-AND (:p_d_only_latest_event_$this->id = 0 OR
-  NOT EXISTS (
-    SELECT true
-    FROM et_ophciexamination_systemic_diagnoses later_diagnoses
-    JOIN event later_event ON later_event.id = later_diagnoses.event_id
-    JOIN episode later_episode ON later_episode.id = later_event.episode_id
-    WHERE later_episode.patient_id = episode.patient_id
-    AND later_event.event_date > event.event_date OR (later_event.event_date = event.event_date AND later_event.created_date > event.created_date)
-  )
-)";
+        $queryStr = "
+            SELECT episode.patient_id
+            FROM ophciexamination_diagnosis diagnosis
+            JOIN et_ophciexamination_diagnoses diagnoses ON diagnoses.id = diagnosis.element_diagnoses_id
+            JOIN event ON event.id = diagnoses.event_id
+            JOIN episode ON episode.id = event.episode_id
+            JOIN disorder ON diagnosis.disorder_id = disorder.id
+            WHERE LOWER(disorder.term) LIKE LOWER(:p_d_value_$this->id)
+            AND (:p_d_firm_$this->id IS NULL OR event.firm_id = :p_d_firm_$this->id)
+            AND (:p_d_only_latest_event_$this->id = 0 OR
+              NOT EXISTS (
+                SELECT true
+                FROM et_ophciexamination_diagnoses later_diagnoses
+                JOIN event later_event ON later_event.id = later_diagnoses.event_id
+                JOIN episode later_episode ON later_episode.id = later_event.episode_id
+                WHERE later_episode.patient_id = episode.patient_id
+                AND later_event.event_date > event.event_date OR (later_event.event_date = event.event_date AND later_event.created_date > event.created_date)
+              )
+            )
+            
+            UNION
+            
+            SELECT episode.patient_id
+            FROM ophciexamination_systemic_diagnoses_diagnosis diagnosis
+            JOIN et_ophciexamination_systemic_diagnoses diagnoses ON diagnoses.id = diagnosis.element_id
+            JOIN event ON event.id = diagnoses.event_id
+            JOIN episode ON episode.id = event.episode_id
+            JOIN disorder ON diagnosis.disorder_id = disorder.id
+            WHERE LOWER(disorder.term) LIKE LOWER(:p_d_value_$this->id)
+            AND (:p_d_firm_$this->id IS NULL OR event.firm_id = :p_d_firm_$this->id)
+            AND (:p_d_only_latest_event_$this->id = 0 OR
+              NOT EXISTS (
+                SELECT true
+                FROM et_ophciexamination_systemic_diagnoses later_diagnoses
+                JOIN event later_event ON later_event.id = later_diagnoses.event_id
+                JOIN episode later_episode ON later_episode.id = later_event.episode_id
+                WHERE later_episode.patient_id = episode.patient_id
+                AND later_event.event_date > event.event_date OR (later_event.event_date = event.event_date AND later_event.created_date > event.created_date)
+              )
+            )";
         if (($this->firm_id === '' || $this->firm_id === null) && $this->only_latest_event == 0) {
-            $query .= ' UNION ';
-            $query .= "SELECT p3.id
-FROM patient p3 
-JOIN secondary_diagnosis sd
-  ON sd.patient_id = p3.id
-JOIN disorder d3
-  ON d3.id = sd.disorder_id
-WHERE LOWER(d3.term) LIKE LOWER(:p_d_value_$this->id)
-AND :p_d_firm_$this->id IS NULL
-AND :p_d_only_latest_event_$this->id = 0";
+            $queryStr .= ' UNION ';
+            $queryStr .= "
+            SELECT p3.id
+            FROM patient p3 
+            JOIN secondary_diagnosis sd
+              ON sd.patient_id = p3.id
+            JOIN disorder d3
+              ON d3.id = sd.disorder_id
+            WHERE LOWER(d3.term) LIKE LOWER(:p_d_value_$this->id)
+            AND :p_d_firm_$this->id IS NULL
+            AND :p_d_only_latest_event_$this->id = 0";
         }
 
         switch ($this->operation) {
@@ -187,19 +188,22 @@ AND :p_d_only_latest_event_$this->id = 0";
                 // Do nothing extra.
                 break;
             case 'NOT LIKE':
-                $query = "
-SELECT DISTINCT p1.id
-FROM patient p1
-WHERE p1.id NOT IN (
-  $query
-)";
+                $queryStr = "
+                  SELECT DISTINCT p1.id
+                  FROM patient p1
+                  WHERE p1.id NOT IN (
+                    $queryStr
+                  )";
                 break;
             default:
                 throw new CHttpException(400, 'Invalid operator specified.');
                 break;
         }
 
-        return $query;
+        $query = Yii::app()->db->createCommand($queryStr);
+        $this->bindParams($query, $this->bindValues());
+
+        return ArrayHelper::array_values_multi($query->queryAll());
     }
 
     /**

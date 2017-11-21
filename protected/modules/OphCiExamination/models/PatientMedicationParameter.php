@@ -95,44 +95,50 @@ class PatientMedicationParameter extends CaseSearchParameter implements DBProvid
      */
     public function getIds()
     {
+        $queryStr = '';
         switch ($this->operation) {
             case 'LIKE':
                 $op = 'LIKE';
                 $wildcard = '%';
 
-                return "
-SELECT p.id
-FROM patient p
-JOIN patient_medication_assignment m
-  ON m.patient_id = p.id
-LEFT JOIN drug d
-  ON d.id = m.drug_id
-LEFT JOIN medication_drug md
-  ON md.id = m.medication_drug_id
-WHERE d.name $op '$wildcard' || :p_m_value_$this->id || '$wildcard'
-  OR md.name $op '$wildcard' || :p_m_value_$this->id || '$wildcard'";
+                $queryStr = "
+                    SELECT p.id
+                    FROM patient p
+                    JOIN patient_medication_assignment m
+                      ON m.patient_id = p.id
+                    LEFT JOIN drug d
+                      ON d.id = m.drug_id
+                    LEFT JOIN medication_drug md
+                      ON md.id = m.medication_drug_id
+                    WHERE d.name $op '$wildcard' || :p_m_value_$this->id || '$wildcard'
+                      OR md.name $op '$wildcard' || :p_m_value_$this->id || '$wildcard'";
                 break;
             case 'NOT LIKE':
                 $op = 'NOT LIKE';
                 $wildcard = '%';
 
-                return "
-SELECT p.id
-FROM patient p
-LEFT JOIN patient_medication_assignment m
-  ON m.patient_id = p.id
-LEFT JOIN drug d
-  ON d.id = m.drug_id
-LEFT JOIN medication_drug md
-  ON md.id = m.medication_drug_id
-WHERE d.name $op '$wildcard' || :p_m_value_$this->id || '$wildcard'
-  OR md.name $op '$wildcard' || :p_m_value_$this->id || '$wildcard'
-  OR m.id IS NULL";
+                $queryStr = "
+                  SELECT p.id
+                  FROM patient p
+                  LEFT JOIN patient_medication_assignment m
+                    ON m.patient_id = p.id
+                  LEFT JOIN drug d
+                    ON d.id = m.drug_id
+                  LEFT JOIN medication_drug md
+                    ON md.id = m.medication_drug_id
+                  WHERE d.name $op '$wildcard' || :p_m_value_$this->id || '$wildcard'
+                    OR md.name $op '$wildcard' || :p_m_value_$this->id || '$wildcard'
+                    OR m.id IS NULL";
                 break;
             default:
                 throw new CHttpException(400, 'Invalid operator specified.');
                 break;
         }
+
+        $query = Yii::app()->db->createCommand($queryStr);
+        $this->bindParams($query, $this->bindValues());
+
+        return ArrayHelper::array_values_multi($query->queryAll());
     }
 
     /**

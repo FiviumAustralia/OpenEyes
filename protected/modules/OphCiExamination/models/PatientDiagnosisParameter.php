@@ -121,13 +121,13 @@ class PatientDiagnosisParameter extends CaseSearchParameter implements DBProvide
         <?php
     }
 
+
     /**
-     * Generate a SQL fragment representing the subquery of a FROM condition.
-     * @param $searchProvider DBProvider The search provider. This is used to determine whether or not the search provider is using SQL syntax.
-     * @return string The constructed query string.
-     * @throws CHttpException
+     * Get patient ids based on diagnoses.
+     * @return array patient ids
+     * @throws CHttpException In case of invalid operator
      */
-    public function query()
+    public function getIds()
     {
         $query = "
 SELECT episode.patient_id
@@ -206,7 +206,7 @@ WHERE p1.id NOT IN (
      * Get the list of bind values for use in the SQL query.
      * @return array An array of bind values. The keys correspond to the named binds in the query string.
      */
-    public function bindValues()
+    private function bindValues()
     {
         $result = array(
             "p_d_value_$this->id" => '%' . $this->term . '%',

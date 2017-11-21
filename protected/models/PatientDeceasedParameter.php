@@ -56,13 +56,13 @@ class PatientDeceasedParameter extends CaseSearchParameter implements DBProvider
         <?php
     }
 
+
     /**
-     * Generate a SQL fragment representing the subquery of a FROM condition.
-     * @param $searchProvider DBProvider The search provider. This is used to determine whether or not the search provider is using SQL syntax.
+     * Get patient ids based on if they are alive.
      * @return array patient ids
-     * @throws CHttpException
+     * @throws CHttpException In case of invalid operator
      */
-    public function query()
+    public function getIds()
     {
         $queryStr = null;
         switch ($this->operation)

@@ -70,13 +70,13 @@ class PatientNumberParameter extends CaseSearchParameter implements DBProviderIn
         <?php
     }
 
+
     /**
-     * Generate a SQL fragment representing the subquery of a FROM condition.
-     * @param $searchProvider DBProvider The database search provider.
-     * @return string The constructed query string.
-     * @throws CHttpException
+     * Get patient ids based on patient number.
+     * @return array patient ids
+     * @throws CHttpException In case of invalid operator
      */
-    public function query()
+    public function getIds()
     {
         $op = '=';
         /*
@@ -88,15 +88,15 @@ class PatientNumberParameter extends CaseSearchParameter implements DBProviderIn
         }*/
 
         return "SELECT DISTINCT p.id 
-FROM patient p
-WHERE p.hos_num $op :p_num_number_$this->id";
+        FROM patient p
+        WHERE p.hos_num $op :p_num_number_$this->id";
     }
 
     /**
      * Get the list of bind values for use in the SQL query.
      * @return array An array of bind values. The keys correspond to the named binds in the query string.
      */
-    public function bindValues()
+    private function bindValues()
     {
         // Construct your list of bind values here. Use the format "bind" => "value".
         return array(

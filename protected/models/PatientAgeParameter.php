@@ -139,11 +139,11 @@ class PatientAgeParameter extends CaseSearchParameter implements DBProviderInter
     }
 
     /**
-     * Generate the SQL query for patient age.
-     * @return array The query string for use by the search provider, or null if not implemented for the specified search provider.
+     * Get patient ids based on age.
+     * @return array patient ids
      * @throws CHttpException In case of invalid operator
      */
-    public function query()
+    public function getIds()
     {
         switch ($this->operation) {
             case 'BETWEEN':
@@ -177,7 +177,7 @@ class PatientAgeParameter extends CaseSearchParameter implements DBProviderInter
     /**
      * @return array The list of bind values being used by the current parameter instance.
      */
-    public function bindValues()
+    private function bindValues()
     {
         $bindValues = array();
 

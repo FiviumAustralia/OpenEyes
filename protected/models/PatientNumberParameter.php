@@ -78,18 +78,15 @@ class PatientNumberParameter extends CaseSearchParameter implements DBProviderIn
      */
     public function getIds()
     {
-        $op = '=';
-        /*
-        // Reimplement this code if more operation choices are added to this parameter type.
-         if ($this->operation === '=') {
-            $op = '=';
-        } else {
-            throw new CHttpException(400, 'Invalid operator specified.');
-        }*/
-
-        return "SELECT DISTINCT p.id 
+        $queryStr =
+            "SELECT DISTINCT p.id 
         FROM patient p
-        WHERE p.hos_num $op :p_num_number_$this->id";
+        WHERE p.hos_num = :p_num_number_$this->id";
+
+        $query = Yii::app()->db->createCommand($queryStr);
+        $this->bindParams($query, $this->bindValues());
+
+        return ArrayHelper::array_values_multi($query->queryAll());
     }
 
     /**

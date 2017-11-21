@@ -94,28 +94,32 @@ class PatientAllergyParameter extends CaseSearchParameter implements DBProviderI
      */
     public function getIds()
     {
-        $query = "SELECT DISTINCT p.id 
-FROM patient p 
-LEFT JOIN patient_allergy_assignment paa
-  ON paa.patient_id = p.id
-LEFT JOIN allergy a
-  ON a.id = paa.allergy_id
-WHERE a.name = :p_al_textValue_$this->id";
+        $queryStr = "SELECT DISTINCT p.id 
+            FROM patient p 
+            LEFT JOIN patient_allergy_assignment paa
+              ON paa.patient_id = p.id
+            LEFT JOIN allergy a
+              ON a.id = paa.allergy_id
+            WHERE a.name = :p_al_textValue_$this->id";
         switch ($this->operation) {
             case '=':
-                return $query;
+//                return $queryStr;
                 break;
             case '!=':
-                return "SELECT DISTINCT p1.id
-FROM patient p1
-WHERE p1.id NOT IN (
-  $query
-)";
+                $queryStr = "SELECT DISTINCT p1.id
+                  FROM patient p1
+                  WHERE p1.id NOT IN (
+                    $queryStr
+                  )";
                 break;
             default:
                 throw new CHttpException(400, 'Invalid operator specified.');
                 break;
         }
+        $query = Yii::app()->db->createCommand($queryStr);
+        $this->bindParams($query, $this->bindValues());
+
+        return ArrayHelper::array_values_multi($query->queryAll());
     }
 
     /**

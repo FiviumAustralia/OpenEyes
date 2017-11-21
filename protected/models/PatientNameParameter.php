@@ -77,23 +77,16 @@ class PatientNameParameter extends CaseSearchParameter implements DBProviderInte
      */
     public function getIds()
     {
-        $op = 'LIKE';
-        /*
-         // Reimplement this code if other operations are added to this parameter type.
-         switch ($this->operation) {
-            case 'LIKE':
-                $op = 'LIKE';
-                break;
-            default:
-                throw new CHttpException(400, 'Invalid operator specified.');
-                break;
-        }*/
+         $queryStr = "SELECT DISTINCT p.id 
+          FROM patient p 
+          JOIN contact c 
+            ON c.id = p.contact_id
+          WHERE LOWER(CONCAT(c.first_name, ' ', c.last_name)) LIKE LOWER(:p_n_name_$this->id)";
 
-        return "SELECT DISTINCT p.id 
-FROM patient p 
-JOIN contact c 
-  ON c.id = p.contact_id
-WHERE LOWER(CONCAT(c.first_name, ' ', c.last_name)) $op LOWER(:p_n_name_$this->id)";
+        $query = Yii::app()->db->createCommand($queryStr);
+        $this->bindParams($query, $this->bindValues());
+
+        return ArrayHelper::array_values_multi($query->queryAll());
     }
 
     /**

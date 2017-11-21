@@ -17,7 +17,7 @@ class DBProvider extends \SearchProvider
         foreach ($criteria as $id => $param) {
             // Ignore any case search parameters that do not implement DBProviderInterface
             if ($param instanceof DBProviderInterface) {
-                $new_ids = $param->query();
+                $new_ids = $param->getIds();
                 if(!$first) {
                     $result = array_unique(array_intersect($result, $new_ids));
                 } else {

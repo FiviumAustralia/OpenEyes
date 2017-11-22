@@ -1919,6 +1919,9 @@ class PatientController extends BaseController
     {
         $patients = Patient::findDuplicates($firstName, $last_name, $dob, $id);
 
+        Yii::log("First name: ".$firstName);
+        Yii::log("Last name: ".$last_name);
+        Yii::log("DOB: ".$dob);
         if (isset($patients['error'])) {
             $this->renderPartial('crud/_conflicts_error', array(
                 'errors' => $patients['error'],

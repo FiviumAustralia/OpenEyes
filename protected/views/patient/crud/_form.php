@@ -590,14 +590,34 @@ $ethnic_groups = CHtml::listData(EthnicGroup::model()->findAll(), 'id', 'name');
     var first_name = $('#Contact_first_name').val();
     var last_name = $('#Contact_last_name').val();
     var date_of_birth = $('#Patient_dob').val();
+
     if (first_name && last_name && date_of_birth) {
       $.ajax({
           url: "<?php echo Yii::app()->controller->createUrl('patient/findDuplicates'); ?>",
           data: {firstName: first_name, last_name: last_name, dob: date_of_birth, id: id},
           type: 'GET',
           success: function (response) {
-            $('#conflicts').remove();
-            $('#contact').after(response);
+            $('#duplicate-message').html(response);
+            $('#duplicate-message').dialog({
+              width: 700,
+              title: 'Duplicates',
+              modal: true,
+              buttons: [
+                {
+                  text: "Acknowledged and continue",
+                  style:"background: #cf0d27; color: white; font-weight: 600",
+                  click: function () {
+                    $(this).dialog("close");
+                  }
+                },
+                {
+                  text: "Cancel and Restart",
+                  style:"background: #107be9; color: white; font-weight: 600",
+                  click: function () {
+                    location.reload();
+                  }
+                }]
+            });
           }
         }
       );
@@ -619,3 +639,5 @@ $ethnic_groups = CHtml::listData(EthnicGroup::model()->findAll(), 'id', 'name');
     );
   });
 </script>
+<div id="duplicate-message">
+</div>

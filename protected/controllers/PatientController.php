@@ -1968,7 +1968,6 @@ class PatientController extends BaseController
                 $element->getDisplayAttributes()
             );
         }
-
         echo CJSON::encode($result);
     }
 }

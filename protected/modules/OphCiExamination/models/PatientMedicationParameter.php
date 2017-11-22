@@ -138,7 +138,7 @@ class PatientMedicationParameter extends CaseSearchParameter implements DBProvid
         $query = Yii::app()->db->createCommand($queryStr);
         $this->bindParams($query, $this->bindValues());
 
-        return ArrayHelper::array_values_multi($query->queryAll());
+        return array_column($query->queryAll(), 'id');
     }
 
     /**

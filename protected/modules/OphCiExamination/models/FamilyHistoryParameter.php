@@ -138,7 +138,10 @@ WHERE id NOT IN (
                 break;
         }
 
-        return $queryStr;
+        $query = Yii::app()->db->createCommand($queryStr);
+        $this->bindParams($query, $this->bindValues());
+
+        return array_column($query->queryAll(), 'id');
     }
 
     /**

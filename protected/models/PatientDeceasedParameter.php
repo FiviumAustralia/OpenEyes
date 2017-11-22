@@ -80,7 +80,7 @@ class PatientDeceasedParameter extends CaseSearchParameter implements DBProvider
 
         $query = Yii::app()->db->createCommand($queryStr);
 
-        return ArrayHelper::array_values_multi($query->queryAll());
+        return array_column($query->queryAll(), 'id');
     }
 
     /**

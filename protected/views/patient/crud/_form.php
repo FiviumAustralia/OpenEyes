@@ -586,11 +586,11 @@ $ethnic_groups = CHtml::listData(EthnicGroup::model()->findAll(), 'id', 'name');
     return {'1': 'referral', '2': 'self_register', '0': 'other_register'};
   }
 
+  var dup_checked = false;
   function findDuplicates(id) {
     var first_name = $('#Contact_first_name').val();
     var last_name = $('#Contact_last_name').val();
     var date_of_birth = $('#Patient_dob').val();
-
     if (first_name && last_name && date_of_birth) {
       $.ajax({
           url: "<?php echo Yii::app()->controller->createUrl('patient/findDuplicates'); ?>",
@@ -604,10 +604,13 @@ $ethnic_groups = CHtml::listData(EthnicGroup::model()->findAll(), 'id', 'name');
               modal: true,
               buttons: [
                 {
-                  text: "Acknowledged and continue",
+                  text: "Acknowledge and Continue",
                   style:"background: #cf0d27; color: white; font-weight: 600",
                   click: function () {
+                    dup_checked = true;
                     $(this).dialog("close");
+                    $('#patient-form-submit-button').attr('disabled', false);
+                    $('#patient-form-submit-button').removeClass('disabled');
                   }
                 },
                 {
@@ -626,8 +629,12 @@ $ethnic_groups = CHtml::listData(EthnicGroup::model()->findAll(), 'id', 'name');
 
   var submitted = false;
   $(document).ready(function () {
+    if (!dup_checked){
+      $('#patient-form-submit-button').attr('disabled', true);
+      $('#patient-form-submit-button').addClass('disabled');
+    }
     $("#patient-form").on('submit', function (e) {
-        if (!submitted) {
+        if (!submitted ) {
           $('#patient-form-submit-button').attr('disabled', true);
           $('#patient-form-submit-button').addClass('disabled');
           $('#form-submit-loader').show();

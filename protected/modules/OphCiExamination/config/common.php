@@ -69,7 +69,9 @@ return array(
             'parameters' => array(
                 'OphCiExamination' => array(
                     'PatientAllergy',
-                    'FamilyHistory'
+                    'FamilyHistory',
+                    'PatientDiagnosis',
+                    'PatientMedication',
                 ),
             ),
         ),

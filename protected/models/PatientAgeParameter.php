@@ -3,7 +3,7 @@
 /**
  * Class PatientAgeParameter
  */
-class PatientAgeParameter extends CaseSearchParameter implements DBProviderInterface
+class PatientAgeParameter extends ParameterNode implements DBProviderInterface
 {
     /**
      * @var integer $textValue Represents a single value
@@ -98,7 +98,7 @@ class PatientAgeParameter extends CaseSearchParameter implements DBProviderInter
     /**
      * @param $id integer ID of the parameter for rendering purposes.
      */
-    public function renderParameter($id)
+    public function renderNode($id)
     {
         $ops = array(
             '<=' => 'Younger than',
@@ -143,7 +143,12 @@ class PatientAgeParameter extends CaseSearchParameter implements DBProviderInter
      * @return array patient ids
      * @throws CHttpException In case of invalid operator
      */
-    public function getIds()
+    public function getResultSet($universe)
+    {
+        return $this->runQuery();
+    }
+
+    public function runQuery()
     {
         switch ($this->operation) {
             case 'BETWEEN':
@@ -162,9 +167,9 @@ class PatientAgeParameter extends CaseSearchParameter implements DBProviderInter
 
         $queryStr = 'SELECT id FROM patient WHERE TIMESTAMPDIFF(YEAR, dob, IFNULL(date_of_death, CURDATE()))';
         if ($op === 'BETWEEN') {
-          $queryStr = "$queryStr BETWEEN :p_a_min_$this->id AND :p_a_max_$this->id";
+            $queryStr = "$queryStr BETWEEN :p_a_min_$this->id AND :p_a_max_$this->id";
         } else {
-          $queryStr = "$queryStr $op :p_a_value_$this->id";
+            $queryStr = "$queryStr $op :p_a_value_$this->id";
         }
 
 

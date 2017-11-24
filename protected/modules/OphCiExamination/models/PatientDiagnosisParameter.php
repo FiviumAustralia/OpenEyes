@@ -3,7 +3,7 @@
 /**
  * Class PatientDiagnosisParameter
  */
-class PatientDiagnosisParameter extends CaseSearchParameter implements DBProviderInterface
+class PatientDiagnosisParameter extends ParameterNode implements DBProviderInterface
 {
     /**
      * @var string $term
@@ -59,7 +59,7 @@ class PatientDiagnosisParameter extends CaseSearchParameter implements DBProvide
         );
     }
 
-    public function renderParameter($id)
+    public function renderNode($id)
     {
         $ops = array(
             'LIKE' => 'Diagnosed with',
@@ -121,13 +121,17 @@ class PatientDiagnosisParameter extends CaseSearchParameter implements DBProvide
         <?php
     }
 
-
     /**
-     * Get patient ids based on diagnoses.
+     * Get patient ids based on patient number.
      * @return array patient ids
      * @throws CHttpException In case of invalid operator
      */
-    public function getIds()
+    public function getResultSet($universe)
+    {
+        return $this->runQuery();
+    }
+
+    public function runQuery()
     {
         $queryStr = "
             SELECT episode.patient_id as id

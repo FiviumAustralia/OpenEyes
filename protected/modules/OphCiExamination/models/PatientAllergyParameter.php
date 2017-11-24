@@ -3,7 +3,7 @@
 /**
  * Class PatientAllergyParameter
  */
-class PatientAllergyParameter extends CaseSearchParameter implements DBProviderInterface
+class PatientAllergyParameter extends ParameterNode implements DBProviderInterface
 {
     /**
      * @var string $textValue
@@ -50,7 +50,7 @@ class PatientAllergyParameter extends CaseSearchParameter implements DBProviderI
         );
     }
 
-    public function renderParameter($id)
+    public function renderNode($id)
     {
         $ops = array(
             '=' => 'Is allergic to',
@@ -86,13 +86,17 @@ class PatientAllergyParameter extends CaseSearchParameter implements DBProviderI
         <?php
     }
 
-
     /**
-     * Get patient ids based on allergies.
+     * Get patient ids based on patient number.
      * @return array patient ids
      * @throws CHttpException In case of invalid operator
      */
-    public function getIds()
+    public function getResultSet($universe)
+    {
+        return $this->runQuery();
+    }
+
+    public function runQuery()
     {
         $queryStr = "SELECT DISTINCT p.id 
             FROM patient p 

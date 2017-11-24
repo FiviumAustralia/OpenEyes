@@ -3,7 +3,7 @@
 /**
  * Class PatientNumberParameter
  */
-class PatientNumberParameter extends CaseSearchParameter implements DBProviderInterface
+class PatientNumberParameter extends ParameterNode implements DBProviderInterface
 {
     public $number;
 
@@ -55,7 +55,7 @@ class PatientNumberParameter extends CaseSearchParameter implements DBProviderIn
         ));
     }
 
-    public function renderParameter($id)
+    public function renderNode($id)
     {
         ?>
         <div class="row field-row">
@@ -76,7 +76,12 @@ class PatientNumberParameter extends CaseSearchParameter implements DBProviderIn
      * @return array patient ids
      * @throws CHttpException In case of invalid operator
      */
-    public function getIds()
+    public function getResultSet($universe)
+    {
+        return $this->runQuery();
+    }
+
+    public function runQuery()
     {
         $queryStr =
             "SELECT DISTINCT p.id 

@@ -3,7 +3,7 @@
 /**
  * Class CaseSearchParameter
  */
-abstract class CaseSearchParameter extends CFormModel
+abstract class ParameterNode extends SearchNode
 {
     /**
      * @var string $name
@@ -46,12 +46,6 @@ abstract class CaseSearchParameter extends CFormModel
             array('id', 'safe'),
         );
     }
-
-    /**
-     * Render the parameter on-screen.
-     * @param $id integer The position of the parameter in the list of parameters.
-     */
-    abstract public function renderParameter($id);
 
     /**
      * Override this function to customise the output within the audit table. Generally it should be something like "name: < val".

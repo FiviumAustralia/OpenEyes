@@ -3,7 +3,7 @@
 /**
  * Class PatientDeceasedParameter
  */
-class PatientDeceasedParameter extends CaseSearchParameter implements DBProviderInterface
+class PatientDeceasedParameter extends ParameterNode implements DBProviderInterface
 {
     /**
      * CaseSearchParameter constructor. This overrides the parent constructor so that the name can be immediately set.
@@ -42,7 +42,7 @@ class PatientDeceasedParameter extends CaseSearchParameter implements DBProvider
         ));
     }
 
-    public function renderParameter($id)
+    public function renderNode($id)
     {
         // Initialise any rendering variables here.
         ?>
@@ -62,7 +62,12 @@ class PatientDeceasedParameter extends CaseSearchParameter implements DBProvider
      * @return array patient ids
      * @throws CHttpException In case of invalid operator
      */
-    public function getIds()
+    public function getResultSet($universe)
+    {
+        return $this->runQuery();
+    }
+
+    public function runQuery()
     {
         $queryStr = null;
         switch ($this->operation)

@@ -3,7 +3,7 @@
 /**
  * Class FamilyHistoryParameter
  */
-class FamilyHistoryParameter extends CaseSearchParameter implements DBProviderInterface
+class FamilyHistoryParameter extends ParameterNode implements DBProviderInterface
 {
     /**
      * @var integer $relative
@@ -63,7 +63,7 @@ class FamilyHistoryParameter extends CaseSearchParameter implements DBProviderIn
         );
     }
 
-    public function renderParameter($id)
+    public function renderNode($id)
     {
         $ops = array(
             '=' => 'has',
@@ -105,13 +105,22 @@ class FamilyHistoryParameter extends CaseSearchParameter implements DBProviderIn
         <?php
     }
 
+    /**
+     * Get patient ids based on patient number.
+     * @return array patient ids
+     * @throws CHttpException In case of invalid operator
+     */
+    public function getResultSet($universe)
+    {
+        return $this->runQuery();
+    }
 
     /**
      * Get patient ids based on family history of disease.
      * @return array patient ids
      * @throws CHttpException In case of invalid operator
      */
-    public function getIds()
+    public function runQuery()
     {
         $queryStr = "
 SELECT DISTINCT p.id 

@@ -6,9 +6,8 @@
 interface DBProviderInterface
 {
     /**
-     * Return a list of database row ids conforming to conditions
-     *
-     * @return array Ids
+     * Return a list of IDs from q SQL query
+     * @return array Results from the executed query
      */
-    public function getIds();
+    public function runQuery();
 }

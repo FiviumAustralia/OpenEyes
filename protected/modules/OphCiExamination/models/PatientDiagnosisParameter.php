@@ -129,8 +129,8 @@ class PatientDiagnosisParameter extends CaseSearchParameter implements DBProvide
      */
     public function getIds()
     {
-        $queryStr = /**@lang nothing*/"
-            SELECT episode.patient_id as id
+        $queryStr = "
+            SELECT episode.patient_id AS id
             FROM ophciexamination_diagnosis diagnosis
             JOIN et_ophciexamination_diagnoses diagnoses ON diagnoses.id = diagnosis.element_diagnoses_id
             JOIN event ON event.id = diagnoses.event_id
@@ -171,7 +171,7 @@ class PatientDiagnosisParameter extends CaseSearchParameter implements DBProvide
             )";
         if (($this->firm_id === '' || $this->firm_id === null) && $this->only_latest_event == 0) {
             $queryStr .= ' UNION ';
-            $queryStr .= /** @lang sql */
+            $queryStr .= 
                 "
             SELECT p3.id
             FROM patient p3 

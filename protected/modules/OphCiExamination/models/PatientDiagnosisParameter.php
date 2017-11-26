@@ -130,7 +130,7 @@ class PatientDiagnosisParameter extends CaseSearchParameter implements DBProvide
     public function getIds()
     {
         $queryStr = "
-            SELECT episode.patient_id
+            SELECT episode.patient_id AS id
             FROM ophciexamination_diagnosis diagnosis
             JOIN et_ophciexamination_diagnoses diagnoses ON diagnoses.id = diagnosis.element_diagnoses_id
             JOIN event ON event.id = diagnoses.event_id
@@ -171,7 +171,8 @@ class PatientDiagnosisParameter extends CaseSearchParameter implements DBProvide
             )";
         if (($this->firm_id === '' || $this->firm_id === null) && $this->only_latest_event == 0) {
             $queryStr .= ' UNION ';
-            $queryStr .= "
+            $queryStr .= 
+                "
             SELECT p3.id
             FROM patient p3 
             JOIN secondary_diagnosis sd
@@ -188,8 +189,9 @@ class PatientDiagnosisParameter extends CaseSearchParameter implements DBProvide
                 // Do nothing extra.
                 break;
             case 'NOT LIKE':
-                $queryStr = "
-                  SELECT DISTINCT p1.id
+                $queryStr = /** @lang sql */
+                    "
+                  SELECT DISTINCT id
                   FROM patient p1
                   WHERE p1.id NOT IN (
                     $queryStr
@@ -199,7 +201,6 @@ class PatientDiagnosisParameter extends CaseSearchParameter implements DBProvide
                 throw new CHttpException(400, 'Invalid operator specified.');
                 break;
         }
-
         $query = Yii::app()->db->createCommand($queryStr);
         $this->bindParams($query, $this->bindValues());
 

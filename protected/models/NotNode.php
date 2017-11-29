@@ -10,12 +10,12 @@ class NotNode extends LogicNode
 
     }
 
-    public function getResultSet($universe)
+    public function getResultSet($universal_set)
     {
         $ids = array();
         foreach ($this->children as $child) {
-            $data = $child->getResultSet($universe);
-            $ids = array_diff($universe, $data);
+            $data = $child->getResultSet($universal_set);
+            $ids = array_diff($universal_set, $data);
         }
         return $ids;
     }

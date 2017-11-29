@@ -6,10 +6,10 @@
 abstract class SearchNode extends CFormModel
 {
     /**
-     * @param $universe int[] The universal set of IDs. This is primarily used for NOT nodes.
+     * @param $universal_set int[] The universal set of IDs. This is primarily used for NOT nodes.
      * @return int[] A list of IDs.
      */
-    abstract public function getResultSet($universe);
+    abstract public function getResultSet($universal_set);
 
     /**
      * Render the parameter on-screen.

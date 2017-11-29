@@ -9,11 +9,11 @@ class AndNode extends LogicNode
     {
     }
 
-    public function getResultSet($universe)
+    public function getResultSet($universal_set)
     {
         $ids = array();
         foreach ($this->children as $i => $child) {
-            $data = $child->getResultSet($universe);
+            $data = $child->getResultSet($universal_set);
             if ($i === 0) {
                 // Assign the initial dataset.
                 $ids = $data;

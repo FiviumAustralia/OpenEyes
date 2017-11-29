@@ -3,7 +3,7 @@
 /**
  * Class PatientDeceasedParameter
  */
-class PatientDeceasedParameter extends ParameterNode implements DBProviderInterface
+class PatientDeceasedParameter extends ParameterNode
 {
     /**
      * CaseSearchParameter constructor. This overrides the parent constructor so that the name can be immediately set.
@@ -58,16 +58,12 @@ class PatientDeceasedParameter extends ParameterNode implements DBProviderInterf
 
 
     /**
-     * Get patient ids based on if they are alive.
+     * Get patient ids based on patient number.
+     * @param $universal_set int[] A list of all IDs in the reference data set.
      * @return array patient ids
      * @throws CHttpException In case of invalid operator
      */
-    public function getResultSet($universe)
-    {
-        return $this->runQuery();
-    }
-
-    public function runQuery()
+    public function getResultSet($universal_set)
     {
         $queryStr = null;
         switch ($this->operation)

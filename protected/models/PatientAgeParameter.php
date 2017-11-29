@@ -3,7 +3,7 @@
 /**
  * Class PatientAgeParameter
  */
-class PatientAgeParameter extends ParameterNode implements DBProviderInterface
+class PatientAgeParameter extends ParameterNode
 {
     /**
      * @var integer $textValue Represents a single value
@@ -139,16 +139,12 @@ class PatientAgeParameter extends ParameterNode implements DBProviderInterface
     }
 
     /**
-     * Get patient ids based on age.
+     * Get patient ids based on patient number.
+     * @param $universal_set int[] A list of all IDs in the reference data set.
      * @return array patient ids
      * @throws CHttpException In case of invalid operator
      */
-    public function getResultSet($universe)
-    {
-        return $this->runQuery();
-    }
-
-    public function runQuery()
+    public function getResultSet($universal_set)
     {
         switch ($this->operation) {
             case 'BETWEEN':

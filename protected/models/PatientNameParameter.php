@@ -3,7 +3,7 @@
 /**
  * Class PatientNameParameter
  */
-class PatientNameParameter extends ParameterNode implements DBProviderInterface
+class PatientNameParameter extends ParameterNode
 {
     public $patient_name;
 
@@ -71,17 +71,13 @@ class PatientNameParameter extends ParameterNode implements DBProviderInterface
 
     /**
      * Get patient ids based on patient number.
+     * @param $universal_set int[] A list of all IDs in the reference data set.
      * @return array patient ids
      * @throws CHttpException In case of invalid operator
      */
-    public function getResultSet($universe)
+    public function getResultSet($universal_set)
     {
-        return $this->runQuery();
-    }
-
-    public function runQuery()
-    {
-         $queryStr = "SELECT DISTINCT p.id 
+        $queryStr = "SELECT DISTINCT p.id 
           FROM patient p 
           JOIN contact c 
             ON c.id = p.contact_id

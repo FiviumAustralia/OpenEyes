@@ -3,7 +3,7 @@
 /**
  * Class PatientMedicationParameter
  */
-class PatientMedicationParameter extends ParameterNode implements DBProviderInterface
+class PatientMedicationParameter extends ParameterNode
 {
     /**
      * @var string $textValue
@@ -89,15 +89,11 @@ class PatientMedicationParameter extends ParameterNode implements DBProviderInte
 
     /**
      * Get patient ids based on patient number.
+     * @param $universal_set int[] A list of all IDs in the reference data set.
      * @return array patient ids
      * @throws CHttpException In case of invalid operator
      */
-    public function getResultSet($universe)
-    {
-        return $this->runQuery();
-    }
-
-    public function runQuery()
+    public function getResultSet($universal_set)
     {
         $queryStr = '';
         switch ($this->operation) {

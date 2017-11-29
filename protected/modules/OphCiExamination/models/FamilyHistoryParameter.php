@@ -3,7 +3,7 @@
 /**
  * Class FamilyHistoryParameter
  */
-class FamilyHistoryParameter extends ParameterNode implements DBProviderInterface
+class FamilyHistoryParameter extends ParameterNode
 {
     /**
      * @var integer $relative
@@ -107,20 +107,11 @@ class FamilyHistoryParameter extends ParameterNode implements DBProviderInterfac
 
     /**
      * Get patient ids based on patient number.
+     * @param $universal_set int[] A list of all IDs in the reference data set.
      * @return array patient ids
      * @throws CHttpException In case of invalid operator
      */
-    public function getResultSet($universe)
-    {
-        return $this->runQuery();
-    }
-
-    /**
-     * Get patient ids based on family history of disease.
-     * @return array patient ids
-     * @throws CHttpException In case of invalid operator
-     */
-    public function runQuery()
+    public function getResultSet($universal_set)
     {
         $queryStr = "
 SELECT DISTINCT p.id 

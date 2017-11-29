@@ -10,11 +10,11 @@ class OrNode extends LogicNode
 
     }
 
-    public function getResultSet($universe)
+    public function getResultSet($universal_set)
     {
         $ids = array();
         foreach ($this->children as $child) {
-            $data = $child->getResultSet($universe);
+            $data = $child->getResultSet($universal_set);
             $ids = array_unique(array_merge($ids, $data));
         }
         return $ids;

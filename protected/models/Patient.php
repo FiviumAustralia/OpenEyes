@@ -311,30 +311,6 @@ class Patient extends BaseActiveRecordVersioned
         return 'None';
     }
 
-    /**
-     * @param $status string Patient's status in a trial.
-     * @return string Number of trials the patient is in where they have the given status within a trial. This is returned as a string to preserve max. precision.
-     */
-    public function getTrialCount($status)
-    {
-        $criteria = new CDbCriteria();
-        $criteria->compare('patient_status', $status);
-        $criteria->compare('patient_id', $this->id);
-        return TrialPatient::model()->count($criteria);
-    }
-
-    /**
-     * @param $trial_id int Trial ID.
-     * @return string|null Patient's status in the given trial.
-     */
-    public function getTrialStatus($trial_id)
-    {
-        $criteria = new CDbCriteria();
-        $criteria->compare('trial_id', $trial_id);
-        $criteria->compare('patient_id', $this->id);
-        return TrialPatient::model()->find($criteria)->getStatusForDisplay();
-    }
-
     public function search_nr($params)
     {
         $criteria = new CDbCriteria();

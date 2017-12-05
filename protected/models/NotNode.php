@@ -3,7 +3,7 @@
 /**
  * Class OrNode
  */
-class NotNode extends LogicNode
+class NotNode extends LogicalSearchNode
 {
     public function renderNode($id)
     {

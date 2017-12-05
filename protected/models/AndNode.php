@@ -3,7 +3,7 @@
 /**
  * Class AndNode
  */
-class AndNode extends LogicNode
+class AndNode extends LogicalSearchNode
 {
     public function renderNode($id)
     {

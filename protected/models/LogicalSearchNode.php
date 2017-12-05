@@ -3,7 +3,7 @@
 /**
  * Class LogicNode
  */
-abstract class LogicNode extends SearchNode
+abstract class LogicalSearchNode extends SearchNode
 {
     /**
      * @var SearchNode[]
@@ -13,5 +13,13 @@ abstract class LogicNode extends SearchNode
     public function addChildren($children)
     {
         $this->children = $children;
+    }
+
+    /**
+     * @param $child SearchNode
+     */
+    public function addChild($child)
+    {
+        $this->children[] = $child;
     }
 }

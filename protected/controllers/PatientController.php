@@ -1566,8 +1566,7 @@ class PatientController extends BaseController
                 $patient->beforeSave();
             }
         } else { // When the user first enters the screen
-            $command = Yii::app()->db->createCommand('SELECT nextval("patient_cera_number")');
-            $patient->hos_num = $command->queryScalar();
+            $patient->hos_num = Patient::getNextCeraNumber();
         }
 
         if (isset($patient->gp_id)) {

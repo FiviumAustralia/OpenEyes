@@ -190,7 +190,6 @@ class PatientDiagnosisParameter extends ParameterNode
 
         $query = Yii::app()->db->createCommand($queryStr);
         $this->bindParams($query, $this->bindValues());
-        print_r($this->bindValues());
 
         return array_column($query->queryAll(), 'id');
     }

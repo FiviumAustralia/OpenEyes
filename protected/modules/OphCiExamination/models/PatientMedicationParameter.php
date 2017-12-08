@@ -95,7 +95,6 @@ class PatientMedicationParameter extends ParameterNode
      */
     public function getResultSet($universal_set)
     {
-        $queryStr = '';
         switch ($this->operation) {
             case 'LIKE':
                 $op = 'LIKE';
@@ -110,8 +109,8 @@ class PatientMedicationParameter extends ParameterNode
                       ON d.id = m.drug_id
                     LEFT JOIN medication_drug md
                       ON md.id = m.medication_drug_id
-                    WHERE d.name $op '$wildcard' || :p_m_value_$this->id || '$wildcard'
-                      OR md.name $op '$wildcard' || :p_m_value_$this->id || '$wildcard'";
+                    WHERE d.name $op '$wildcard' || :p_m_value || '$wildcard'
+                      OR md.name $op '$wildcard' || :p_m_value || '$wildcard'";
                 break;
             case 'NOT LIKE':
                 $op = 'NOT LIKE';
@@ -126,8 +125,8 @@ class PatientMedicationParameter extends ParameterNode
                     ON d.id = m.drug_id
                   LEFT JOIN medication_drug md
                     ON md.id = m.medication_drug_id
-                  WHERE d.name $op '$wildcard' || :p_m_value_$this->id || '$wildcard'
-                    OR md.name $op '$wildcard' || :p_m_value_$this->id || '$wildcard'
+                  WHERE d.name $op '$wildcard' || :p_m_value || '$wildcard'
+                    OR md.name $op '$wildcard' || :p_m_value || '$wildcard'
                     OR m.id IS NULL";
                 break;
             default:
@@ -149,7 +148,7 @@ class PatientMedicationParameter extends ParameterNode
     {
         // Construct your list of bind values here. Use the format "bind" => "value".
         return array(
-            "p_m_value_$this->id" => $this->textValue,
+            'p_m_value' => $this->textValue,
         );
     }
 

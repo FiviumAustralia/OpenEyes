@@ -75,14 +75,13 @@ class PatientNumberParameter extends ParameterNode
      * Get patient ids based on patient number.
      * @param $universal_set int[] A list of all IDs in the reference data set.
      * @return array patient ids
-     * @throws CHttpException In case of invalid operator
      */
     public function getResultSet($universal_set)
     {
         $queryStr =
-            "SELECT DISTINCT p.id 
+            'SELECT DISTINCT p.id 
         FROM patient p
-        WHERE p.hos_num = :p_num_number_$this->id";
+        WHERE p.hos_num = :p_num_number';
 
         $query = Yii::app()->db->createCommand($queryStr);
         $this->bindParams($query, $this->bindValues());
@@ -98,7 +97,7 @@ class PatientNumberParameter extends ParameterNode
     {
         // Construct your list of bind values here. Use the format "bind" => "value".
         return array(
-            "p_num_number_$this->id" => $this->number,
+            'p_num_number' => $this->number,
         );
     }
 

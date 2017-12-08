@@ -17,6 +17,13 @@ abstract class SearchNode extends CFormModel
      */
     abstract public function getResultSet($universal_set);
 
+    public function rules()
+    {
+        return array(
+            array('parent_id', 'safe'),
+        );
+    }
+
     /**
      * Render the parameter on-screen.
      * @param $id integer The position of the parameter in the list of parameters.

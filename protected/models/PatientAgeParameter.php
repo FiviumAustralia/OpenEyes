@@ -163,11 +163,10 @@ class PatientAgeParameter extends ParameterNode
 
         $queryStr = 'SELECT id FROM patient WHERE TIMESTAMPDIFF(YEAR, dob, IFNULL(date_of_death, CURDATE()))';
         if ($op === 'BETWEEN') {
-            $queryStr = "$queryStr BETWEEN :p_a_min_$this->id AND :p_a_max_$this->id";
+            $queryStr .= 'BETWEEN :p_a_min AND :p_a_max';
         } else {
-            $queryStr = "$queryStr $op :p_a_value_$this->id";
+            $queryStr .= " $op :p_a_value";
         }
-
 
         $query = Yii::app()->db->createCommand($queryStr);
         $this->bindParams($query, $this->bindValues());
@@ -182,9 +181,9 @@ class PatientAgeParameter extends ParameterNode
     {
         $bindValues = array();
 
-        $bindValues["p_a_min_$this->id"] = (int)$this->minValue;
-        $bindValues["p_a_max_$this->id"] = (int)$this->maxValue;
-        $bindValues["p_a_value_$this->id"] = (int)$this->textValue;
+        $bindValues['p_a_min'] = (int)$this->minValue;
+        $bindValues['p_a_max'] = (int)$this->maxValue;
+        $bindValues['p_a_value'] = (int)$this->textValue;
 
         return $bindValues;
     }

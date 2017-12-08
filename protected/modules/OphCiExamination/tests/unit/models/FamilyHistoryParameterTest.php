@@ -15,7 +15,6 @@ class FamilyHistoryParameterTest extends CDbTestCase
     {
         parent::setUp();
         $this->object = new FamilyHistoryParameter();
-        $this->object->id = 0;
     }
 
     protected function tearDown()

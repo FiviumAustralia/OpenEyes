@@ -31,7 +31,6 @@ class PatientAllergyParameterTest extends CDbTestCase
     {
         parent::setUp();
         $this->object = new PatientAllergyParameter();
-        $this->object->id = 0;
     }
 
     protected function tearDown()

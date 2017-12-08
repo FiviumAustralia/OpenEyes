@@ -113,14 +113,14 @@ class FamilyHistoryParameter extends ParameterNode
      */
     public function getResultSet($universal_set)
     {
-        $queryStr = "
+        $queryStr = '
 SELECT DISTINCT p.id 
 FROM patient p 
 JOIN patient_family_history fh
   ON fh.patient_id = p.id
-WHERE (:f_h_side_$this->id IS NULL OR fh.side_id = :f_h_side_$this->id)
-  AND (:f_h_relative_$this->id IS NULL OR fh.relative_id = :f_h_relative_$this->id)
-  AND (:f_h_condition_$this->id = :f_h_condition_$this->id)";
+WHERE (:f_h_side IS NULL OR fh.side_id = :f_h_side)
+  AND (:f_h_relative IS NULL OR fh.relative_id = :f_h_relative)
+  AND (:f_h_condition = :f_h_condition)';
         switch ($this->operation) {
             case '=':
                 // Do nothing.
@@ -152,9 +152,9 @@ WHERE id NOT IN (
     {
         // Construct your list of bind values here. Use the format "bind" => "value".
         return array(
-            "f_h_relative_$this->id" => $this->relative,
-            "f_h_side_$this->id" => $this->side,
-            "f_h_condition_$this->id" => $this->condition,
+            'f_h_relative' => $this->relative,
+            'f_h_side' => $this->side,
+            'f_h_condition' => $this->condition,
         );
     }
 

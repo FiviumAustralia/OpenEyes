@@ -27,7 +27,7 @@ abstract class ParameterNode extends SearchNode
      */
     public function attributeNames()
     {
-        return array('name', 'operation', 'id');
+        return array('name', 'operation');
     }
 
     /**
@@ -36,9 +36,10 @@ abstract class ParameterNode extends SearchNode
      */
     public function rules()
     {
-        return array(
-            array('operation', 'required', 'message' => 'The search operator cannot be blank'),
-            array('id', 'safe'),
+        return array_merge(parent::rules(), array(
+                array('operation', 'required', 'message' => 'The search operator cannot be blank'),
+                array('parent_id', 'safe'),
+            )
         );
     }
 

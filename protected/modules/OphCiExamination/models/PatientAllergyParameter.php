@@ -94,13 +94,13 @@ class PatientAllergyParameter extends ParameterNode
      */
     public function getResultSet($universal_set)
     {
-        $queryStr = "SELECT DISTINCT p.id 
+        $queryStr = 'SELECT DISTINCT p.id 
             FROM patient p 
             LEFT JOIN patient_allergy_assignment paa
               ON paa.patient_id = p.id
             LEFT JOIN allergy a
               ON a.id = paa.allergy_id
-            WHERE a.name = :p_al_textValue_$this->id";
+            WHERE a.name = :p_al_textValue';
         switch ($this->operation) {
             case '=':
                 break;
@@ -129,7 +129,7 @@ class PatientAllergyParameter extends ParameterNode
     {
         // Construct your list of bind values here. Use the format "bind" => "value".
         return array(
-            "p_al_textValue_$this->id" => $this->textValue,
+            'p_al_textValue' => $this->textValue,
         );
     }
 

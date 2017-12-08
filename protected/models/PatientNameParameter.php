@@ -73,7 +73,6 @@ class PatientNameParameter extends ParameterNode
      * Get patient ids based on patient number.
      * @param $universal_set int[] A list of all IDs in the reference data set.
      * @return array patient ids
-     * @throws CHttpException In case of invalid operator
      */
     public function getResultSet($universal_set)
     {
@@ -81,7 +80,7 @@ class PatientNameParameter extends ParameterNode
           FROM patient p 
           JOIN contact c 
             ON c.id = p.contact_id
-          WHERE LOWER(CONCAT(c.first_name, ' ', c.last_name)) LIKE LOWER(:p_n_name_$this->id)";
+          WHERE LOWER(CONCAT(c.first_name, ' ', c.last_name)) LIKE LOWER(:p_n_name)";
 
         $query = Yii::app()->db->createCommand($queryStr);
         $this->bindParams($query, $this->bindValues());
@@ -97,7 +96,7 @@ class PatientNameParameter extends ParameterNode
     {
         // Construct your list of bind values here. Use the format "bind" => "value".
         return array(
-            "p_n_name_$this->id" => '%' . $this->patient_name . '%',
+            'p_n_name' => '%' . $this->patient_name . '%',
         );
     }
 

@@ -29,7 +29,8 @@ class PatientDiagnosisParameter extends ParameterNode
         parent::__construct($scenario);
         $this->name = 'diagnosis';
         $this->operation = 'LIKE';
-        $this->only_latest_event = false;
+        $this->only_latest_event = 0;
+        $this->firm_id = null;
     }
 
     public function getLabel()
@@ -129,16 +130,16 @@ class PatientDiagnosisParameter extends ParameterNode
      */
     public function getResultSet($universal_set)
     {
-        $queryStr = "
+        $queryStr = '
             SELECT episode.patient_id as id
             FROM ophciexamination_diagnosis diagnosis
             JOIN et_ophciexamination_diagnoses diagnoses ON diagnoses.id = diagnosis.element_diagnoses_id
             JOIN event ON event.id = diagnoses.event_id
             JOIN episode ON episode.id = event.episode_id
             JOIN disorder ON diagnosis.disorder_id = disorder.id
-            WHERE LOWER(disorder.term) LIKE LOWER(:p_d_value_$this->id)
-            AND (:p_d_firm_$this->id IS NULL OR event.firm_id = :p_d_firm_$this->id)
-            AND (:p_d_only_latest_event_$this->id = 0 OR
+            WHERE LOWER(disorder.term) LIKE LOWER(:p_d_value)
+            AND (:p_d_firm IS NULL OR event.firm_id = :p_d_firm)
+            AND (:p_d_only_latest_event = 0 OR
               NOT EXISTS (
                 SELECT true
                 FROM et_ophciexamination_diagnoses later_diagnoses
@@ -157,9 +158,9 @@ class PatientDiagnosisParameter extends ParameterNode
             JOIN event ON event.id = diagnoses.event_id
             JOIN episode ON episode.id = event.episode_id
             JOIN disorder ON diagnosis.disorder_id = disorder.id
-            WHERE LOWER(disorder.term) LIKE LOWER(:p_d_value_$this->id)
-            AND (:p_d_firm_$this->id IS NULL OR event.firm_id = :p_d_firm_$this->id)
-            AND (:p_d_only_latest_event_$this->id = 0 OR
+            WHERE LOWER(disorder.term) LIKE LOWER(:p_d_value)
+            AND (:p_d_firm IS NULL OR event.firm_id = :p_d_firm)
+            AND (:p_d_only_latest_event = 0 OR
               NOT EXISTS (
                 SELECT true
                 FROM et_ophciexamination_systemic_diagnoses later_diagnoses
@@ -168,20 +169,7 @@ class PatientDiagnosisParameter extends ParameterNode
                 WHERE later_episode.patient_id = episode.patient_id
                 AND later_event.event_date > event.event_date OR (later_event.event_date = event.event_date AND later_event.created_date > event.created_date)
               )
-            )";
-        if (($this->firm_id === '' || $this->firm_id === null) && $this->only_latest_event == 0) {
-            $queryStr .= ' UNION ';
-            $queryStr .= "
-            SELECT p3.id
-            FROM patient p3 
-            JOIN secondary_diagnosis sd
-              ON sd.patient_id = p3.id
-            JOIN disorder d3
-              ON d3.id = sd.disorder_id
-            WHERE LOWER(d3.term) LIKE LOWER(:p_d_value_$this->id)
-            AND :p_d_firm_$this->id IS NULL
-            AND :p_d_only_latest_event_$this->id = 0";
-        }
+            )';
 
         switch ($this->operation) {
             case 'LIKE':
@@ -202,6 +190,7 @@ class PatientDiagnosisParameter extends ParameterNode
 
         $query = Yii::app()->db->createCommand($queryStr);
         $this->bindParams($query, $this->bindValues());
+        print_r($this->bindValues());
 
         return array_column($query->queryAll(), 'id');
     }
@@ -213,9 +202,9 @@ class PatientDiagnosisParameter extends ParameterNode
     private function bindValues()
     {
         $result = array(
-            "p_d_value_$this->id" => '%' . $this->term . '%',
-            "p_d_only_latest_event_$this->id" => $this->only_latest_event,
-            "p_d_firm_$this->id" => $this->firm_id ?: null,
+            ':p_d_value' => '%' . $this->term . '%',
+            ':p_d_only_latest_event' => $this->only_latest_event,
+            ':p_d_firm' => $this->firm_id ?: null,
         );
 
         return $result;

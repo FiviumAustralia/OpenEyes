@@ -29,8 +29,7 @@ class PatientDiagnosisParameter extends ParameterNode
         parent::__construct($scenario);
         $this->name = 'diagnosis';
         $this->operation = 'LIKE';
-        $this->only_latest_event = 0;
-        $this->firm_id = null;
+        $this->only_latest_event = false;
     }
 
     public function getLabel()

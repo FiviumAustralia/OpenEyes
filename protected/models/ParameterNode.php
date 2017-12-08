@@ -11,14 +11,9 @@ abstract class ParameterNode extends SearchNode
     public $name;
 
     /**
-     * @var string $operator .
+     * @var string $operator
      */
     public $operation;
-
-    /**
-     * @var integer $id .
-     */
-    public $id;
 
     /**
      * Get the parameter identifier (usually the name).

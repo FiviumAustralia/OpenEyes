@@ -60,39 +60,31 @@ class PatientDeceasedParameter extends ParameterNode
     /**
      * Get patient ids based on patient number.
      * @param $universal_set int[] A list of all IDs in the reference data set.
-     * @return array patient ids
+     * @return int[] patient ids
      * @throws CHttpException In case of invalid operator
      */
     public function getResultSet($universal_set)
     {
-        $queryStr = null;
         switch ($this->operation)
         {
             case '0':
-                $queryStr = 'SELECT id FROM patient WHERE NOT(is_deceased)';
+              // Do nothing as this will be handled at the end of the function.
                 break;
             case '1':
-                $queryStr = 'SELECT id FROM patient';
+                // Return the universal set as it contains all patient records.
+                return $universal_set;
                 break;
             default:
                 throw new CHttpException(400, "Invalid value specified: $this->operation");
                 break;
         }
 
-        $query = Yii::app()->db->createCommand($queryStr);
+        /**
+         * @var $query CDbCommand
+         */
+        $query = Yii::app()->db->createCommand('SELECT id FROM patient WHERE NOT(is_deceased)');
 
         return array_column($query->queryAll(), 'id');
-    }
-
-    /**
-     * Get the list of bind values for use in the SQL query.
-     * @return array An array of bind values. The keys correspond to the named binds in the query string.
-     */
-    public function bindValues()
-    {
-        // Construct your list of bind values here. Use the format "bind" => "value".
-        // No binds are used in this query, so return an empty array.
-        return array();
     }
 
     /**

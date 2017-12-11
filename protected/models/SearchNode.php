@@ -6,8 +6,9 @@
 abstract class SearchNode extends CFormModel
 {
     public $parent_id;
+    public $id;
 
-    public function __construct($scenario = null) {
+    public function __construct($scenario = '') {
         parent::__construct($scenario);
         $this->parent_id = 0; // Default all nodes to a root parent.
     }
@@ -20,14 +21,21 @@ abstract class SearchNode extends CFormModel
     public function rules()
     {
         return array(
-            array('parent_id', 'safe'),
+            array('parent_id, id', 'safe'),
         );
+    }
+
+    public function getIDString()
+    {
+        if (!$this->parent_id) {
+            return $this->id;
+        }
+        return $this->parent_id . '_' . $this->id;
     }
 
     /**
      * Render the parameter on-screen.
-     * @param $id integer The position of the parameter in the list of parameters.
+     * @param $id string The position of the parameter in the list of parameters, in the format parentID_id.
      */
     abstract public function renderNode($id);
-
 }

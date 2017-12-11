@@ -6,7 +6,6 @@
  */
 abstract class LogicalSearchNode extends SearchNode
 {
-    public $id;
     /**
      * @var SearchNode[]
      */

@@ -130,7 +130,7 @@ class PatientDiagnosisParameter extends CaseSearchParameter implements DBProvide
     public function getIds()
     {
         $queryStr = "
-            SELECT episode.patient_id
+            SELECT episode.patient_id as id
             FROM ophciexamination_diagnosis diagnosis
             JOIN et_ophciexamination_diagnoses diagnoses ON diagnoses.id = diagnosis.element_diagnoses_id
             JOIN event ON event.id = diagnoses.event_id
@@ -151,7 +151,7 @@ class PatientDiagnosisParameter extends CaseSearchParameter implements DBProvide
             
             UNION
             
-            SELECT episode.patient_id
+            SELECT episode.patient_id as id
             FROM ophciexamination_systemic_diagnoses_diagnosis diagnosis
             JOIN et_ophciexamination_systemic_diagnoses diagnoses ON diagnoses.id = diagnosis.element_id
             JOIN event ON event.id = diagnoses.event_id

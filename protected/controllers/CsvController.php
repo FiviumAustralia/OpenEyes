@@ -379,10 +379,10 @@ class CsvController extends BaseController
         //diagnoses
         if(!empty($patient['LE_diagnosis']) || !empty($patient['RE_diagnosis'])){
             $context = Firm::model()->findByAttributes(array(
-                'name' => !empty($patient['context']) ? $patient['context'] :  'Medical Retinal firm'
+                'name' => (!empty($patient['context'])) ? $patient['context'] :  'Medical Retinal firm'
             ));
             $episode = new Episode();
-            $episode->firm = $context;
+            $episode->firm_id = $context->id;
             $episode->patient_id = $new_patient->id;
             if(!$episode->save()){
                 $errors[] = 'Could not save new episode';

@@ -31,115 +31,96 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     public function testCanEditEpisode_SupportServicesFirm_SupportServicesEpisode()
     {
-        return;//Disabling non-functional tests
         $this->assertTrue($this->rules->canEditEpisode($this->getSupportServicesFirm(), $this->getSupportServicesEpisode()));
     }
 
     public function testCanEditEpisode_NormalFirm_SupportServicesEpisode()
     {
-        return;//Disabling non-functional tests
         $this->assertFalse($this->rules->canEditEpisode($this->getNormalFirm(), $this->getSupportServicesEpisode()));
     }
 
     public function testCanEditEpisode_SupportServicesFirm_LegacyEpisode()
     {
-        return;//Disabling non-functional tests
         $this->assertFalse($this->rules->canEditEpisode($this->getSupportServicesFirm(), $this->getLegacyEpisode()));
     }
 
     public function testCanEditEpisode_NormalFirm_LegacyEpisode()
     {
-        return;//Disabling non-functional tests
         $this->assertFalse($this->rules->canEditEpisode($this->getNormalFirm(), $this->getLegacyEpisode()));
     }
 
     public function testCanEditEpisode_SupportServicesFirm_NormalEpisode()
     {
-        return;//Disabling non-functional tests
         $this->assertFalse($this->rules->canEditEpisode($this->getSupportServicesFirm(), $this->getNormalEpisode()));
     }
 
     public function testCanEditEpisode_NormalFirm_NormalEpisode_MatchingSubspecialty()
     {
-        return;//Disabling non-functional tests
         $this->assertTrue($this->rules->canEditEpisode($this->getNormalFirm(42), $this->getNormalEpisode(42)));
     }
 
     public function testCanEditEpisode_NormalFirm_NormalEpisode_NonMatchingSubspecialty()
     {
-        return;//Disabling non-functional tests
         $this->assertFalse($this->rules->canEditEpisode($this->getNormalFirm(42), $this->getNormalEpisode(43)));
     }
 
     public function testCanCreateEvent_Disabled()
     {
-        return;//Disabling non-functional tests
         $this->assertFalse($this->rules->canCreateEvent($this->getNormalFirm(), $this->getNormalEpisode(), $this->getDisabledEventType()));
     }
 
     public function testCanCreateEvent_SupportServicesFirm_NonSupportServiceEventType()
     {
-        return;//Disabling non-functional tests
         $this->assertFalse($this->rules->canCreateEvent($this->getSupportServicesFirm(), $this->getNormalEpisode(), $this->getNonSupportServicesEventType()));
     }
 
     public function testCanCreateEvent_SupportServicesFirm_SupportServiceEventType()
     {
-        return;//Disabling non-functional tests
         $this->assertTrue($this->rules->canCreateEvent($this->getSupportServicesFirm(), $this->getSupportServicesEpisode(), $this->getSupportServicesEventType()));
     }
 
     public function testCanCreateEvent_NormalFirm_NonSupportServiceEventType()
     {
-        return;//Disabling non-functional tests
         $this->assertTrue($this->rules->canCreateEvent($this->getNormalFirm(), $this->getNormalEpisode(), $this->getNonSupportServicesEventType()));
     }
 
     public function testCanCreateEvent_NormalFirm_SupportServiceEventType()
     {
-        return;//Disabling non-functional tests
         $this->assertTrue($this->rules->canCreateEvent($this->getNormalFirm(), $this->getNormalEpisode(), $this->getSupportServicesEventType()));
     }
 
     public function testCanCreateEvent_LegacyEpisode()
     {
-        return;//Disabling non-functional tests
         $this->assertFalse($this->rules->canCreateEvent($this->getNormalFirm(), $this->getLegacyEpisode(), $this->getNonSupportServicesEventType()));
     }
 
     public function testCanCreateEvent_WrongSubspecialtyEpisode()
     {
-        return;//Disabling non-functional tests
         $this->assertFalse($this->rules->canCreateEvent($this->getNormalFirm(42), $this->getNormalEpisode(43), $this->getNonSupportServicesEventType()));
     }
 
     public function testCanCreateEvent_NoData()
     {
-        return;//Disabling non-functional tests
         $this->assertTrue($this->rules->canCreateEvent());
     }
 
     public function testCanCreateEvent_NoEventType()
     {
-        return;//Disabling non-functional tests
         $this->assertTrue($this->rules->canCreateEvent($this->getNormalFirm(), $this->getNormalEpisode()));
     }
 
     public function testCanCreateEvent_NoEventType_LegacyEpisode()
     {
-        return;//Disabling non-functional tests
         $this->assertFalse($this->rules->canCreateEvent($this->getNormalFirm(), $this->getLegacyEpisode()));
     }
 
     public function testCanCreateEvent_NoEventType_WrongSubspecialtyEpisode()
     {
-        return;//Disabling non-functional tests
         $this->assertFalse($this->rules->canCreateEvent($this->getNormalFirm(42), $this->getNormalEpisode(43)));
     }
 
     public function testCanEditEvent_DeletePending()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('delete_pending' => true));
         $this->assertFalse($this->rules->canEditEvent($this->getNormalFirm(), $event));
     }
@@ -154,28 +135,24 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     public function testCanEditEvent_WrongSubspecialty()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('episode' => $this->getNormalEpisode(43)));
         $this->assertFalse($this->rules->canEditEvent($this->getNormalFirm(42), $event));
     }
 
     public function testCanEditEvent_CorrectSubspecialty()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('episode' => $this->getNormalEpisode(42)));
         $this->assertTrue($this->rules->canEditEvent($this->getNormalFirm(42), $event));
     }
 
     public function testCanEditEvent_LegacyEpisode()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('episode' => $this->getLegacyEpisode()));
         $this->assertFalse($this->rules->canEditEvent($this->getNormalFirm(), $event));
     }
 
     public function testCanEditEvent_EventLockingDisabled()
     {
-        return;//Disabling non-functional tests
         Yii::app()->params['event_lock_disable'] = true;
         $event = $this->getEvent(array('created_date' => '1999-12-31 23:59:59'));
         $this->assertTrue($this->rules->canEditEvent($this->getNormalFirm(), $event));
@@ -183,7 +160,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     public function testCanEditEvent_Admin()
     {
-        return;//Disabling non-functional tests
         $this->becomeAdminUser();
         $event = $this->getEvent(array('created_date' => '1999-12-31 23:59:59'));
         $this->assertTrue($this->rules->canEditEvent($this->getNormalFirm(), $event));
@@ -191,7 +167,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     public function testCanEditEvent_ModuleAllows()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('created_date' => '1999-12-31 23:59:59'));
         $event->expects($this->any())->method('moduleAllowsEditing')->will($this->returnValue(true));
         $this->assertTrue($this->rules->canEditEvent($this->getNormalFirm(), $event));
@@ -199,7 +174,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     public function testCanEditEvent_ModuleDisallows()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('created_date' => '1999-12-31 23:59:59'));
         $event->expects($this->any())->method('moduleAllowsEditing')->will($this->returnValue(false));
         $this->assertFalse($this->rules->canEditEvent($this->getNormalFirm(), $event));
@@ -207,21 +181,18 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     public function testCanEditEvent_TimeLocked()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('created_date' => date('Y-m-d H:i:s', strtotime('2 days ago'))));
         $this->assertFalse($this->rules->canEditEvent($this->getNormalFirm(), $event));
     }
 
     public function testCanEditEvent_NotTimeLocked()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('created_date' => date('Y-m-d H:i:s', strtotime('yesterday'))));
         $this->assertTrue($this->rules->canEditEvent($this->getNormalFirm(), $event));
     }
 
     public function testCanDeleteEvent_WrongUser()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('created_user_id' => 1, 'created_date' => date('Y-m-d H:i:s')));
         $this->assertFalse($this->rules->canDeleteEvent($this->getUser(2), $this->getNormalFirm(), $event));
     }
@@ -236,28 +207,24 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     public function testCanDeleteEvent_WrongSubspecialty()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('episode' => $this->getNormalEpisode(43)));
         $this->assertFalse($this->rules->canDeleteEvent($this->getUser(), $this->getNormalFirm(42), $event));
     }
 
     public function testCanDeleteEvent_CorrectSubspecialty()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('episode' => $this->getNormalEpisode(42)));
         $this->assertTrue($this->rules->canDeleteEvent($this->getUser(1), $this->getNormalFirm(42), $event));
     }
 
     public function testCanDeleteEvent_LegacyEpisode()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('episode' => $this->getLegacyEpisode()));
         $this->assertFalse($this->rules->canDeleteEvent($this->getUser(), $this->getNormalFirm(), $event));
     }
 
     public function testCanDeleteEvent_EventLockingDisabled()
     {
-        return;//Disabling non-functional tests
         Yii::app()->params['event_lock_disable'] = true;
         $event = $this->getEvent(array('created_date' => '1999-12-31 23:59:59'));
         $this->assertTrue($this->rules->canDeleteEvent($this->getUser(), $this->getNormalFirm(), $event));
@@ -265,7 +232,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     public function testCanDeleteEvent_Admin()
     {
-        return;//Disabling non-functional tests
         $this->becomeAdminUser();
         $event = $this->getEvent(array('created_user_id' => 1, 'created_date' => '1999-12-31 23:59:59'));
         $this->assertTrue($this->rules->canDeleteEvent($this->getUser(2), $this->getNormalFirm(), $event));
@@ -273,7 +239,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     public function testCanDeleteEvent_ModuleAllows()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('created_date' => '1999-12-31 23:59:59'));
         $event->expects($this->any())->method('moduleAllowsEditing')->will($this->returnValue(true));
         $this->assertTrue($this->rules->canDeleteEvent($this->getUser(), $this->getNormalFirm(), $event));
@@ -281,7 +246,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     public function testCanDeleteEvent_ModuleDisallows()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('created_date' => '1999-12-31 23:59:59'));
         $event->expects($this->any())->method('moduleAllowsEditing')->will($this->returnValue(false));
         $this->assertFalse($this->rules->canDeleteEvent($this->getUser(), $this->getNormalFirm(), $event));
@@ -289,28 +253,24 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     public function testCanDeleteEvent_TimeLocked()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('created_date' => date('Y-m-d H:i:s', strtotime('2 days ago'))));
         $this->assertFalse($this->rules->canDeleteEvent($this->getUser(), $this->getNormalFirm(), $event));
     }
 
     public function testCanDeleteEvent_NotTimeLocked()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('created_date' => date('Y-m-d H:i:s', strtotime('yesterday'))));
         $this->assertTrue($this->rules->canDeleteEvent($this->getUser(), $this->getNormalFirm(), $event));
     }
 
     public function testCanRequestEventDeletion_DeletePending()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('delete_pending' => true));
         $this->assertFalse($this->rules->canRequestEventDeletion($this->getNormalFirm(), $event));
     }
 
     public function testCanRequestEventDeletion_ModuleDisallows()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent();
         $event->expects($this->any())->method('showDeleteIcon')->will($this->returnValue(false));
         $this->assertFalse($this->rules->canRequestEventDeletion($this->getNormalFirm(), $event));
@@ -326,28 +286,24 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     public function testCanRequestEventDeletion_WrongSubspecialty()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('episode' => $this->getNormalEpisode(43)));
         $this->assertFalse($this->rules->canRequestEventDeletion($this->getNormalFirm(42), $event));
     }
 
     public function testCanRequestEventDeletion_CorrectSubspecialty()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('episode' => $this->getNormalEpisode(42)));
         $this->assertTrue($this->rules->canRequestEventDeletion($this->getNormalFirm(42), $event));
     }
 
     public function testCanRequestEventDeletion_LegacyEpisode()
     {
-        return;//Disabling non-functional tests
         $event = $this->getEvent(array('episode' => $this->getLegacyEpisode()));
         $this->assertFalse($this->rules->canRequestEventDeletion($this->getNormalFirm(), $event));
     }
 
     public function testDefaultCanCreateEventWithNoSuffix()
     {
-        return;//Disabling non-functional tests
         $this->becomeNormalUserWithCreatePermission();
         $event_type = ComponentStubGenerator::generate(
             'EventType',
@@ -358,7 +314,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     public function testCanEditEventEventTypeSuffix()
     {
-        return;//Disabling non-functional tests
         $this->becomeTestUserWithCreatePermission();
         $event_type = ComponentStubGenerator::generate(
             'EventType',
@@ -369,7 +324,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     public function testCantCreateEventEventTypeSuffix()
     {
-        return;//Disabling non-functional tests
         $this->becomeTestUserWithNoCreatePermission();
         $event_type = ComponentStubGenerator::generate(
             'EventType',
@@ -391,7 +345,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     public function testCantEditEventEventTypeSuffix()
     {
-        return;//Disabling non-functional tests
         $this->becomeTestUserWithNoCreatePermission();
         $event_type = ComponentStubGenerator::generate(
             'EventType',
@@ -402,7 +355,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     private function getSupportServicesFirm()
     {
-        return;//Disabling non-functional tests
         $firm = ComponentStubGenerator::generate('Firm', array('subspecialtyID' => null));
         $firm->expects($this->any())->method('isSupportServicesFirm')->will($this->returnValue(true));
 
@@ -411,7 +363,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     private function getNormalFirm($subspecialty_id = 42)
     {
-        return;//Disabling non-functional tests
         $firm = ComponentStubGenerator::generate('Firm', array('subspecialtyID' => $subspecialty_id));
         $firm->expects($this->any())->method('isSupportServicesFirm')->will($this->returnValue(false));
 
@@ -420,7 +371,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     private function getEpisode(array $props = array())
     {
-        return;//Disabling non-functional tests
         $props += array('patient' => ComponentStubGenerator::generate('Patient'));
 
         return ComponentStubGenerator::generate('Episode', $props);
@@ -428,19 +378,16 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     private function getLegacyEpisode()
     {
-        return;//Disabling non-functional tests
         return $this->getEpisode(array('legacy' => true));
     }
 
     private function getSupportServicesEpisode()
     {
-        return;//Disabling non-functional tests
         return $this->getEpisode(array('support_services' => true));
     }
 
     private function getNormalEpisode($subspecialty_id = 42)
     {
-        return;//Disabling non-functional tests
         return $this->getEpisode(
             array(
                 'firm' => $this->getNormalFirm($subspecialty_id),
@@ -452,7 +399,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     private function getDisabledEventType()
     {
-        return;//Disabling non-functional tests
         return ComponentStubGenerator::generate(
             'EventType',
             array('disabled' => true, 'support_services' => false)
@@ -461,7 +407,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     private function getSupportServicesEventType()
     {
-        return;//Disabling non-functional tests
         return ComponentStubGenerator::generate(
             'EventType',
             array('disabled' => false, 'support_services' => true)
@@ -470,7 +415,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     private function getNonSupportServicesEventType()
     {
-        return;//Disabling non-functional tests
         return ComponentStubGenerator::generate(
             'EventType',
             array('disabled' => false, 'support_services' => false)
@@ -479,7 +423,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     private function getEvent(array $props = array())
     {
-        return;//Disabling non-functional tests
         $props += array(
             'episode' => $this->getNormalEpisode(42),
             'created_user_id' => 1,
@@ -491,13 +434,11 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     private function getUser($id = 1)
     {
-        return;//Disabling non-functional tests
         return ComponentStubGenerator::generate('User', array('id' => $id));
     }
 
     private function becomeAdminUser()
     {
-        return;//Disabling non-functional tests
         $user = $this->getMockBuilder('CWebUser')->disableOriginalConstructor()->getMock();
         $user->expects($this->any())->method('checkAccess')->with('admin')->will($this->returnValue(true));
         Yii::app()->setComponent('user', $user);
@@ -505,7 +446,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     private function becomeTestUserWithCreatePermission()
     {
-        return;//Disabling non-functional tests
         $user = $this->getMockBuilder('CWebUser')->disableOriginalConstructor()->getMock();
         $user->expects($this->any())->method('checkAccess')->with('OprnCreateTest')->will($this->returnValue(true));
         Yii::app()->setComponent('user', $user);
@@ -513,7 +453,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     private function becomeTestUserWithNoCreatePermission()
     {
-        return;//Disabling non-functional tests
         $user = $this->getMockBuilder('CWebUser')->disableOriginalConstructor()->getMock();
         $user->expects($this->any())->method('checkAccess')->with('OprnCreateTest')->will($this->returnValue(false));
         Yii::app()->setComponent('user', $user);
@@ -521,7 +460,6 @@ class AuthRulesTest extends PHPUnit_Framework_TestCase
 
     private function becomeNormalUserWithCreatePermission()
     {
-        return;//Disabling non-functional tests
         $user = $this->getMockBuilder('CWebUser')->disableOriginalConstructor()->getMock();
         $user->expects($this->any())->method('checkAccess')->with('OprnCreateEvent')->will($this->returnValue(false));
         Yii::app()->setComponent('user', $user);

@@ -29,25 +29,6 @@ class ProcessHscicDataCommandTest extends CDbTestCase
         $this->processHscicDataCommand->tempPath = $this->processHscicDataCommand->path.'/temp';
     }
 
-    public function testImport()
-    {
-        return;//Disabling non-functional tests
-        /*Gp::model()->deleteAll("id > 3)");
-            Yii::app()->db->createCommand("ALTER TABLE gp AUTO_INCREMENT = 4")->execute();
-            
-            return ;*/
-
-            $gp = Gp::model()->findAll();
-
-        $this->assertEquals(3, count($gp));
-
-        $this->processHscicDataCommand->force = true;
-        $this->processHscicDataCommand->actionImport('gp', 'monthly');
-
-        $gp = Gp::model()->findAll();
-        $this->assertEquals(103, count($gp));
-    }
-
     public function tearDown()
     {
         return;//Disabling non-functional tests
